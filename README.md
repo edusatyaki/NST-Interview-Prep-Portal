@@ -122,7 +122,7 @@ Concretely, this means mapping structured interview data — topics, skills, pro
 
 ```mermaid
 flowchart TD
-    subgraph SOURCES["🌐 Data Sources (35+)"]
+    subgraph SOURCES["Data Sources (35+)"]
         S1[GeeksForGeeks]
         S2[LeetCode Discuss]
         S3[AmbitionBox]
@@ -135,56 +135,56 @@ flowchart TD
     end
 
     subgraph STAGE1["Week 1 — Source Discovery & Extraction"]
-        A1[/"✅ Check ToS & robots.txt"/]
-        A2["🔍 Assess Scrapability
+        A1[/"Check ToS & robots.txt"/]
+        A2["Assess Scrapability
 Static HTML vs JS-rendered"]
-        A3["🤖 Build Scrapers & Parsers
+        A3["Build Scrapers & Parsers
 BeautifulSoup · Selenium · Playwright
 GraphQL APIs · REST APIs"]
-        A4[("📁 Raw JSON Dumps
+        A4[("Raw JSON Dumps
 per source")]
     end
 
     subgraph STAGE2["Week 2 — Ingestion & Schema"]
-        B1["📐 Schema Design
+        B1["Schema Design
 companies · roles · topics
 questions · question_topics"]
-        B2["🗄️ Supabase / PostgreSQL
+        B2["Supabase / PostgreSQL
 Migrations & Setup"]
-        B3["⚙️ ETL Pipeline
+        B3["ETL Pipeline
 Parse JSON → Load to DB
 Deduplication"]
     end
 
     subgraph STAGE3["Week 3 — Cleaning & Classification"]
-        C1["🧹 Data Cleaning
+        C1["Data Cleaning
 Normalize company names
 Fix encoding · Remove HTML"]
-        C2["🤖 Claude API Classification
+        C2["Claude API Classification
 Tag: topic · difficulty
 round type · skill area"]
-        C3["🗺️ Syllabus Mapping
+        C3["Syllabus Mapping
 Map topics → B.Tech CS & AI
 course categories"]
     end
 
     subgraph STAGE4["Week 4 — Student Portal"]
-        D1["⚡ FastAPI Backend
+        D1["FastAPI Backend
 /companies · /topics · /questions"]
-        D2["🎨 Next.js Frontend
+        D2["Next.js Frontend
 Search · Filter · Cards"]
-        D3[["🌍 Deployed on Vercel
+        D3[["Deployed on Vercel
 Student Interview Prep Portal"]]
     end
 
     subgraph STAGE5["Week 5 — Faculty Dashboard"]
-        E1["📊 Gap Analysis Logic
+        E1["Gap Analysis Logic
 Industry topics vs Syllabus topics"]
-        E2["📈 Recharts / Chart.js
+        E2["Recharts / Chart.js
 Heatmaps · Bar charts"]
-        E3["🔐 Supabase Auth
+        E3["Supabase Auth
 Faculty-only access"]
-        E4[["🎓 Curriculum Intelligence
+        E4[["Curriculum Intelligence
 Dashboard"]]
     end
 
@@ -275,14 +275,6 @@ We're actively looking for more high-quality sources. If you know a website, for
 - Not already listed above
 
 > If you've personally used a resource to prep for interviews and found it useful — that's a great signal. Add it!
-
----
-
-## Contributors
-
-| Name | Role |
-|------|------|
-| Satyaki Das | Contributor |
 
 ---
 
