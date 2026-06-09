@@ -120,8 +120,98 @@ Concretely, this means mapping structured interview data — topics, skills, pro
 
 ## Technical Pipeline
 
-```
-Raw Web Data → Staging → Schema → Transformation → Classification → Product Layer
+```mermaid
+flowchart TD
+    subgraph SOURCES["🌐 Data Sources (35+)"]
+        S1[GeeksForGeeks]
+        S2[LeetCode Discuss]
+        S3[AmbitionBox]
+        S4[Glassdoor]
+        S5[InterviewBit]
+        S6[Coding Ninjas / PrepInsta]
+        S7[LinkedIn / Naukri]
+        S8[Reddit / Quora]
+        S9[GitHub Repos]
+    end
+
+    subgraph STAGE1["Week 1 — Source Discovery & Extraction"]
+        A1[/"✅ Check ToS & robots.txt"/]
+        A2["🔍 Assess Scrapability
+Static HTML vs JS-rendered"]
+        A3["🤖 Build Scrapers & Parsers
+BeautifulSoup · Selenium · Playwright
+GraphQL APIs · REST APIs"]
+        A4[("📁 Raw JSON Dumps
+per source")]
+    end
+
+    subgraph STAGE2["Week 2 — Ingestion & Schema"]
+        B1["📐 Schema Design
+companies · roles · topics
+questions · question_topics"]
+        B2["🗄️ Supabase / PostgreSQL
+Migrations & Setup"]
+        B3["⚙️ ETL Pipeline
+Parse JSON → Load to DB
+Deduplication"]
+    end
+
+    subgraph STAGE3["Week 3 — Cleaning & Classification"]
+        C1["🧹 Data Cleaning
+Normalize company names
+Fix encoding · Remove HTML"]
+        C2["🤖 Claude API Classification
+Tag: topic · difficulty
+round type · skill area"]
+        C3["🗺️ Syllabus Mapping
+Map topics → B.Tech CS & AI
+course categories"]
+    end
+
+    subgraph STAGE4["Week 4 — Student Portal"]
+        D1["⚡ FastAPI Backend
+/companies · /topics · /questions"]
+        D2["🎨 Next.js Frontend
+Search · Filter · Cards"]
+        D3[["🌍 Deployed on Vercel
+Student Interview Prep Portal"]]
+    end
+
+    subgraph STAGE5["Week 5 — Faculty Dashboard"]
+        E1["📊 Gap Analysis Logic
+Industry topics vs Syllabus topics"]
+        E2["📈 Recharts / Chart.js
+Heatmaps · Bar charts"]
+        E3["🔐 Supabase Auth
+Faculty-only access"]
+        E4[["🎓 Curriculum Intelligence
+Dashboard"]]
+    end
+
+    SOURCES --> A1
+    A1 --> A2
+    A2 --> A3
+    A3 --> A4
+    A4 --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> D1
+    C3 --> E1
+    D1 --> D2
+    D2 --> D3
+    E1 --> E2
+    E2 --> E3
+    E3 --> E4
+
+    style SOURCES fill:#1e293b,stroke:#475569,color:#e2e8f0
+    style STAGE1 fill:#172554,stroke:#3b82f6,color:#e2e8f0
+    style STAGE2 fill:#14532d,stroke:#22c55e,color:#e2e8f0
+    style STAGE3 fill:#431407,stroke:#f97316,color:#e2e8f0
+    style STAGE4 fill:#4a1d96,stroke:#a855f7,color:#e2e8f0
+    style STAGE5 fill:#7f1d1d,stroke:#ef4444,color:#e2e8f0
 ```
 
 | Stage | Description | Status |
