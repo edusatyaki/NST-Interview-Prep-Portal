@@ -27,17 +27,84 @@ Concretely, this means mapping structured interview data — topics, skills, pro
 
 ## Data Sources
 
+> **Students — we need your help expanding this list!**
+> Found a useful source not listed here? Open a PR and add it to the appropriate table below. See [Contributing a Data Source](#contributing-a-data-source) at the bottom of this page.
+
+### DSA & Coding Problem Platforms
+
 | Source | What It Contains |
 |--------|-----------------|
-| GeeksForGeeks | Company-tagged DSA problems, interview experiences, topic-wise questions |
-| Glassdoor | Interview reviews, question logs by company and role, difficulty ratings |
-| LeetCode Discuss | Company-tagged problems, community interview reports |
-| InterviewBit | Topic and company-wise structured problem sets |
-| AmbitionBox | Indian company-specific interview experiences and questions |
-| LinkedIn Jobs | Job descriptions, required skills by company and role |
-| Naukri.com | Job postings with skill tags relevant to Indian tech market |
-| Reddit (r/cscareerquestions, r/india) | Anecdotal interview experiences, company-specific threads |
-| GitHub Repos | Curated interview prep repos (e.g. awesome-interview-questions) |
+| [GeeksForGeeks](https://www.geeksforgeeks.org) | Company-tagged DSA problems, interview experiences, topic-wise questions |
+| [LeetCode Discuss](https://leetcode.com/discuss) | Company-tagged problems, community interview reports |
+| [InterviewBit](https://www.interviewbit.com) | Topic and company-wise structured problem sets |
+| [HackerRank](https://www.hackerrank.com) | Role-based coding challenges, company-sponsored contests |
+| [HackerEarth](https://www.hackerearth.com) | Coding challenges, campus hiring contest archives |
+| [CodeChef](https://www.codechef.com) | Competitive programming problems, company hiring contests |
+| [Codeforces](https://codeforces.com) | Competitive programming problem archive |
+| [AlgoExpert](https://www.algoexpert.io) | Curated interview problems with video explanations |
+| [NeetCode](https://neetcode.io) | Curated LeetCode roadmap by topic and company |
+| [Coding Ninjas](https://www.codingninjas.com) | Company-wise DSA problems, very popular in Indian colleges |
+| [Educative.io](https://www.educative.io) | Grokking series — system design, coding patterns |
+
+### Indian Placement & Job Portals
+
+| Source | What It Contains |
+|--------|-----------------|
+| [AmbitionBox](https://www.ambitionbox.com) | Indian company-specific interview experiences and questions |
+| [Naukri.com](https://www.naukri.com) | Job postings with skill tags relevant to Indian tech market |
+| [PrepInsta](https://prepinsta.com) | Company-wise placement papers, aptitude & coding questions |
+| [IndiaBix](https://www.indiabix.com) | Aptitude, verbal, technical MCQs — widely used for campus prep |
+| [FacePrep](https://www.faceprep.in) | Company-specific placement prep, mock tests |
+| [CareerRide](https://www.careerride.com) | Interview questions by company and technology |
+| [Freshersworld](https://www.freshersworld.com) | Fresher job listings, off-campus drives, placement papers |
+| [Workat.tech](https://workat.tech) | Indian startup interview experiences, DSA practice |
+| [Instahyre](https://www.instahyre.com) | Indian tech hiring, skill-based job matching |
+
+### Company Reviews & Interview Experiences
+
+| Source | What It Contains |
+|--------|-----------------|
+| [Glassdoor](https://www.glassdoor.com) | Interview reviews, question logs by company and role, difficulty ratings |
+| [Blind / TeamBlind](https://www.teamblind.com) | Anonymous tech worker posts — interview experiences, offers, comp data |
+| [Levels.fyi](https://www.levels.fyi) | Compensation data + interview difficulty ratings by company and level |
+| [Prepfully](https://prepfully.com) | Interview experiences and mock interview reviews |
+| [CareerCup](https://www.careercup.com) | Interview questions shared by candidates, organized by company |
+
+### Job Listings & Skills Intelligence
+
+| Source | What It Contains |
+|--------|-----------------|
+| [LinkedIn Jobs](https://www.linkedin.com/jobs) | Job descriptions, required skills by company and role |
+| [Indeed](https://www.indeed.com) | Job postings with skill requirements, salary estimates |
+| [Wellfound (AngelList)](https://wellfound.com) | Startup job listings with explicit tech stack and skill requirements |
+| [Cutshort](https://cutshort.io) | Indian tech hiring — skill-tagged job listings |
+
+### Community & Discussion
+
+| Source | What It Contains |
+|--------|-----------------|
+| [Reddit — r/cscareerquestions](https://www.reddit.com/r/cscareerquestions) | Anecdotal interview experiences, FAANG prep threads |
+| [Reddit — r/india](https://www.reddit.com/r/india) | Indian company interview experiences, placement discussions |
+| [Reddit — r/developersIndia](https://www.reddit.com/r/developersIndia) | Indian dev community — job prep, interview experiences |
+| [Quora](https://www.quora.com) | Interview experience Q&As, company-specific threads |
+
+### Curated Repositories & Open Content
+
+| Source | What It Contains |
+|--------|-----------------|
+| [GitHub Repos](https://github.com) | Curated interview prep repos (e.g. awesome-interview-questions, system-design-primer) |
+| [System Design Primer](https://github.com/donnemartin/system-design-primer) | Comprehensive system design interview resource |
+| [Tech Interview Handbook](https://www.techinterviewhandbook.org) | Structured guide — algorithms, behavioral, offers |
+| [NeetCode.io Roadmap](https://neetcode.io/roadmap) | Structured DSA roadmap with company frequency tags |
+
+### Supplementary / Niche Sources
+
+| Source | What It Contains |
+|--------|-----------------|
+| [GreatFrontEnd](https://www.greatfrontend.com) | Frontend-specific interview questions (HTML, CSS, JS, React) |
+| [ByteByByte](https://www.byte-by-byte.com) | Algorithm interview breakdowns with solutions |
+| [interviewing.io](https://interviewing.io) | Mock interview recordings and feedback (public blog posts) |
+| Company Engineering Blogs | Tech blogs from Google, Meta, Uber, etc. — insight into problem-solving culture |
 
 ### Data Fields Captured
 
@@ -92,6 +159,42 @@ cd NST-Interview-Prep-Portal
 
 More setup instructions will be added as the project develops.
 
+---
+
+## Contributing a Data Source
+
+We're actively looking for more high-quality sources. If you know a website, forum, dataset, or community that has interview questions, company hiring patterns, or skill requirements — **please add it**.
+
+### How to contribute
+
+1. Fork this repository
+2. Add your source to the appropriate table in the [Data Sources](#data-sources) section above
+3. Use this format:
+
+```
+| [Source Name](https://url.com) | One line describing what data it contains and why it's useful |
+```
+
+4. Open a Pull Request with the title: `Add data source: <Source Name>`
+
+### What makes a good data source?
+- Contains **company-specific** interview questions or experiences
+- Has **topic or skill tags** (even informal ones)
+- Is **publicly accessible** (no login wall, or login-only but widely accessible)
+- Relevant to **Indian tech market** or **FAANG / top product companies**
+- Not already listed above
+
+> If you've personally used a resource to prep for interviews and found it useful — that's a great signal. Add it!
+
+---
+
+## Contributors
+
+| Name | Role |
+|------|------|
+| Satyaki Das | Contributor |
+
+---
 
 ## License
 
