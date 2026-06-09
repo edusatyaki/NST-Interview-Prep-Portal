@@ -92,15 +92,6 @@ cd NST-Interview-Prep-Portal
 
 More setup instructions will be added as the project develops.
 
----
-
-## Contributors
-
-| Name | Role |
-|------|------|
-| Satyaki Das | Contributor |
-
----
 
 ## License
 
