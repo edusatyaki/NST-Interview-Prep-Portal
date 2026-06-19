@@ -57,11 +57,13 @@ export default function RegisterPage() {
         await setActive({ session: result.createdSessionId });
         router.push("/onboarding/step1");
       } else {
-        setError("Verification failed. Check the code and try again.");
+        console.error("OTP verification returned non-complete status:", JSON.stringify(result, null, 2));
+        setError(`Incomplete! Status: ${result.status}. Missing: ${result.missingFields?.join(", ") || "none"}`);
       }
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: { message: string }[] };
-      setError(clerkError?.errors?.[0]?.message ?? "Invalid verification code.");
+    } catch (err: any) {
+      console.error("Clerk OTP verification error:", err);
+      const msg = err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Invalid verification code.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -204,7 +206,7 @@ export default function RegisterPage() {
                   maxLength={6}
                   required
                   value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/, ""))}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                   placeholder="123456"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
