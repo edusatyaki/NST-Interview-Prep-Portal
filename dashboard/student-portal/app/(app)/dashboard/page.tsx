@@ -69,7 +69,7 @@ export default function DashboardPage() {
                     View Intel
                   </Link>
                   <Link
-                    href="/practice"
+                    href={`/roadmap?company=${co.slug}`}
                     className="flex-1 text-center text-xs font-medium bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors"
                   >
                     Practice
@@ -92,7 +92,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-500 mt-1">Master the fundamentals of array manipulation and hash maps.</p>
               </div>
               <Link
-                href="/practice"
+                href="/roadmap"
                 className="bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shrink-0"
               >
                 Start Today&apos;s Practice

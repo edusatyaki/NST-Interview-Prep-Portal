@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import { Bell, Gift, Zap, Search, X, Building2, Tag } from "lucide-react";
 import { searchAll, type SearchResult } from "@/lib/mock-data";
 
@@ -150,16 +151,13 @@ export default function Navbar() {
           <span className="text-sm font-bold text-amber-600">2,450</span>
         </div>
 
-        <button aria-label="Notifications" className="text-gray-400 hover:text-gray-600 transition-colors relative">
+        <Link href="/notifications" aria-label="Notifications" className="text-gray-400 hover:text-gray-600 transition-colors relative block">
           <Bell className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-        </button>
-
-        <Link href="/profile" aria-label="Go to profile">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all">
-            PS
-          </div>
         </Link>
+
+        {/* Clerk User Button */}
+        <UserButton afterSignOutUrl="/login" />
       </div>
     </header>
   );

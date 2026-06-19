@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Rocket, CheckCircle, Map, Zap, Calendar } from "lucide-react";
 import Stepper from "@/components/onboarding/Stepper";
 
@@ -12,6 +13,7 @@ const readyItems = [
 
 export default function Step4() {
   const router = useRouter();
+  const { user } = useUser();
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-4 py-12 text-center">
@@ -58,7 +60,14 @@ export default function Step4() {
       </div>
 
       <button
-        onClick={() => router.push("/dashboard")}
+        onClick={async () => {
+          if (user) {
+            await user.update({
+              unsafeMetadata: { onboarding_done: true }
+            });
+          }
+          router.push("/dashboard");
+        }}
         className="w-full max-w-md bg-gray-900 text-white py-3 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
       >
         <Rocket className="w-4 h-4" /> Launch My Dashboard

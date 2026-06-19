@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, PlusCircle } from "lucide-react";
 import { companiesList } from "@/lib/mock-data";
+import AddToRoadmapModal from "@/components/modals/AddToRoadmapModal";
 
 const FILTERS = ["All", "FAANG", "Indian Product", "Indian Startup", "Service"] as const;
 type Filter = typeof FILTERS[number];
@@ -18,6 +19,18 @@ const filterMap: Record<Filter, string[]> = {
 export default function CompaniesPage() {
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
   const [search, setSearch] = useState("");
+  const [modalCompany, setModalCompany] = useState<{ slug: string; name: string; role: string; initial: string; color: string } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddToRoadmap = (co: any) => {
+    setModalCompany({ slug: co.slug, name: co.name, role: "SDE-1", initial: co.initial, color: co.color });
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAdd = (duration: number) => {
+    console.log(`Added ${modalCompany?.name} to roadmap for ${duration} weeks`);
+    // Will link to real API later
+  };
 
   const filtered = companiesList.filter((c) => {
     const matchesFilter =
@@ -100,14 +113,21 @@ export default function CompaniesPage() {
               </div>
 
               {/* CTA */}
-              <Link
-                href={`/companies/${co.slug}`}
-                className="mt-auto block w-full text-center bg-gray-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <span className="flex items-center justify-center gap-1">
+              <div className="mt-auto flex gap-2">
+                <Link
+                  href={`/companies/${co.slug}`}
+                  className="flex-1 text-center bg-gray-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
+                >
                   View Intel <ChevronRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
+                </Link>
+                <button
+                  onClick={() => handleAddToRoadmap(co)}
+                  className="px-3 py-2.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center"
+                  title="Add to Roadmap"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -117,6 +137,13 @@ export default function CompaniesPage() {
       <p className="text-xs text-gray-400 mt-6 text-center">
         Showing {filtered.length} of {companiesList.length} companies
       </p>
+
+      <AddToRoadmapModal
+        isOpen={isModalOpen}
+        company={modalCompany}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmAdd}
+      />
     </div>
   );
 }

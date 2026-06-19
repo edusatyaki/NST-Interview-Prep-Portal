@@ -32,6 +32,13 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
     d === "Easy"   ? "bg-green-50 text-green-700" :
     d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600";
 
+  // Group questions by topic
+  const topicsMap = group.questions.reduce((acc, q) => {
+    if (!acc[q.topic]) acc[q.topic] = [];
+    acc[q.topic].push(q);
+    return acc;
+  }, {} as Record<string, Question[]>);
+
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
       {/* Accordion header */}
@@ -59,12 +66,22 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
         )}
       </button>
 
-      {/* Questions list */}
+      {/* Questions list by Topic */}
       {open && (
-        <div className="divide-y divide-gray-50">
-          {group.questions.map((q) => (
-            <QuestionRow key={q.id} q={q} />
+        <div className="bg-white px-5 py-2">
+          {Object.entries(topicsMap).map(([topic, questions]) => (
+            <div key={topic} className="mt-4 mb-2">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">
+                {topic}
+              </div>
+              <div className="divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
+                {questions.map((q) => (
+                  <QuestionRow key={q.id} q={q} />
+                ))}
+              </div>
+            </div>
           ))}
+          <div className="pb-4"></div>
         </div>
       )}
     </div>

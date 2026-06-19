@@ -1,116 +1,155 @@
 "use client";
-import { CheckCircle, Lock, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Target, Map as MapIcon, Compass } from "lucide-react";
+import CompanySelector from "@/components/roadmap/CompanySelector";
+import WeekAccordion from "@/components/roadmap/WeekAccordion";
+import { UserRoadmapCompany, getPracticeQuestions } from "@/lib/api";
+import { Question } from "@/lib/mock-data";
 
-const weeks = [
-  { n: 1, topic: "Arrays & Strings", status: "done", xp: "80 XP" },
-  { n: 2, topic: "Binary Search", status: "done", xp: "60 XP" },
-  { n: 3, topic: "Dynamic Programming", status: "active", xp: "3/8" },
-  { n: 4, topic: "Trees", status: "locked", xp: "" },
-  { n: 5, topic: "Graphs", status: "locked", xp: "" },
-  { n: 6, topic: "Linked Lists", status: "locked", xp: "" },
-  { n: 7, topic: "Stacks & Queues", status: "locked", xp: "" },
-  { n: 8, topic: "Heap & Priority Queue", status: "locked", xp: "" },
-  { n: 9, topic: "System Design HLD", status: "locked", xp: "" },
-  { n: 10, topic: "System Design LLD", status: "locked", xp: "" },
-  { n: 11, topic: "SQL & DBMS", status: "locked", xp: "" },
-  { n: 12, topic: "Mock Interviews", status: "locked", xp: "" },
-];
+// Mock helper to generate roadmap data for a company
+async function generateCompanyRoadmap(slug: string, name: string): Promise<UserRoadmapCompany> {
+  const qs = await getPracticeQuestions({ company: name });
+  
+  // Distribute questions into weeks
+  const weeks = [];
+  const qPerWeek = 5;
+  const numWeeks = Math.ceil(qs.length / qPerWeek) || 1;
+  
+  for (let i=0; i<numWeeks; i++) {
+    const wQs = qs.slice(i * qPerWeek, (i+1) * qPerWeek);
+    weeks.push({
+      weekNumber: i + 1,
+      topic: wQs[0]?.topic || "Mixed Practice",
+      totalQuestions: wQs.length,
+      doneQuestions: i === 0 ? Math.floor(wQs.length / 2) : 0,
+      status: i === 0 ? "active" : i < 0 ? "done" : "locked",
+      questions: wQs
+    });
+  }
 
-const problems = [
-  { n: 1, title: "Climbing Stairs", diff: "Easy", xp: 10, done: true },
-  { n: 2, title: "House Robber", diff: "Medium", xp: 20, done: true },
-  { n: 3, title: "Jump Game", diff: "Medium", xp: 20, done: true },
-  { n: 4, title: "Coin Change", diff: "Medium", xp: 20, done: false },
-  { n: 5, title: "Longest Common Subsequence", diff: "Medium", xp: 20, done: false },
-  { n: 6, title: "0/1 Knapsack", diff: "Hard", xp: 30, done: false },
-  { n: 7, title: "Edit Distance", diff: "Hard", xp: 30, done: false },
-  { n: 8, title: "Maximum Subarray", diff: "Easy", xp: 10, done: false },
-];
+  // Set the first week to active, others locked
+  if (weeks.length > 0) {
+    weeks[0].status = "active";
+  }
 
-export default function RoadmapPage() {
+  return {
+    slug,
+    name,
+    role: "SDE-1",
+    totalWeeks: numWeeks,
+    currentWeek: 1,
+    completedWeeks: 0,
+    pctComplete: Math.floor((1 / (numWeeks * qPerWeek)) * 100) || 0,
+    weeks: weeks as any
+  };
+}
+
+function RoadmapContent() {
+  const searchParams = useSearchParams();
+  const initialCompany = searchParams.get("company") || "google";
+  
+  // Hardcode enrolled companies for now, later fetch from User profile
+  const enrolledCompanies = [
+    { slug: "google", name: "Google", role: "SDE-1" },
+    { slug: "microsoft", name: "Microsoft", role: "Software Engineer" }
+  ];
+
+  const [activeSlug, setActiveSlug] = useState(initialCompany);
+  const [roadmapData, setRoadmapData] = useState<UserRoadmapCompany | null>(null);
+
+  useEffect(() => {
+    const comp = enrolledCompanies.find(c => c.slug === activeSlug) || enrolledCompanies[0];
+    if (comp) {
+      generateCompanyRoadmap(comp.slug, comp.name).then(setRoadmapData);
+    }
+  }, [activeSlug]);
+
+  if (!roadmapData) return <div className="p-12 text-center text-gray-500">Loading roadmap...</div>;
+
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-5">My Roadmap</h1>
-
-      {/* Summary bar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-wrap items-center gap-4 mb-6">
-        <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-full px-3 py-1">Google SDE-1</span>
-        <span className="text-sm font-medium text-gray-700">Week 3 of 12</span>
-        <div className="flex-1 flex items-center gap-3 min-w-40">
-          <div className="flex-1 h-2 bg-gray-200 rounded-full">
-            <div className="h-2 bg-blue-500 rounded-full w-1/4" />
-          </div>
-          <span className="text-sm text-gray-500">25%</span>
-        </div>
-        <span className="text-sm text-gray-500">68 days remaining</span>
+    <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">My Roadmap</h1>
+        <p className="text-gray-500">Your personalized path to cracking the interview.</p>
       </div>
 
-      {/* Current Week */}
-      <div className="border-2 border-blue-500 rounded-xl p-6 mb-6 bg-blue-50/30">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-semibold bg-blue-500 text-white rounded px-2 py-1">This Week</span>
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 mt-2">Week 3 — Dynamic Programming</h2>
-        <p className="text-sm text-gray-500 mt-1">8 problems · 40 XP available</p>
-        <p className="text-sm text-blue-600 font-medium mt-1">3/8 completed</p>
+      <CompanySelector 
+        companies={enrolledCompanies} 
+        selectedSlug={activeSlug} 
+        onSelect={setActiveSlug} 
+      />
 
-        <div className="mt-5 space-y-2">
-          {problems.map((p) => (
-            <div key={p.n} className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${p.done ? "bg-blue-600 border-blue-600" : "border-gray-300"}`}>
-                {p.done && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+      {/* Progress Overview */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 flex flex-col md:flex-row gap-6 items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full border-4 border-blue-100 flex items-center justify-center relative">
+            <svg className="absolute inset-0 w-full h-full -rotate-90">
+              <circle cx="30" cy="30" r="28" fill="none" stroke="currentColor" strokeWidth="4" className="text-blue-100" />
+              <circle 
+                cx="30" cy="30" r="28" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="4" 
+                className="text-blue-600" 
+                strokeDasharray={`${(roadmapData.pctComplete / 100) * 176} 176`} 
+              />
+            </svg>
+            <span className="text-sm font-bold text-gray-900">{roadmapData.pctComplete}%</span>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Overall Progress</h2>
+            <p className="text-sm text-gray-500">{roadmapData.completedWeeks} of {roadmapData.totalWeeks} weeks completed</p>
+          </div>
+        </div>
+
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex-1 md:flex-none bg-blue-50 px-4 py-3 rounded-lg flex items-center gap-3">
+            <Target className="w-5 h-5 text-blue-600" />
+            <div>
+              <div className="text-xs text-blue-600 font-bold uppercase tracking-wider">Current</div>
+              <div className="text-sm font-semibold text-gray-900">Week {roadmapData.currentWeek}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Weeks Timeline */}
+      <div className="relative">
+        <div className="absolute left-[27px] top-4 bottom-4 w-px bg-gray-200 z-0 hidden md:block" />
+        
+        <div className="space-y-6 relative z-10">
+          {roadmapData.weeks.map((week) => (
+            <div key={week.weekNumber} className="flex flex-col md:flex-row gap-4">
+              <div className="hidden md:flex flex-col items-center mt-4">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-white ${
+                  week.status === "done" ? "bg-green-100 text-green-600" :
+                  week.status === "active" ? "bg-blue-600 text-white shadow-lg shadow-blue-200" :
+                  "bg-gray-100 text-gray-400"
+                }`}>
+                  <span className="font-bold">{week.weekNumber}</span>
+                </div>
               </div>
-              <span className={`flex-1 text-sm ${p.done ? "line-through text-gray-400" : "text-gray-900 font-medium"}`}>
-                {p.title}
-              </span>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                p.diff === "Easy" ? "bg-green-50 text-green-700" :
-                p.diff === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600"
-              }`}>{p.diff}</span>
-              <span className="text-xs text-amber-600 font-medium">+{p.xp} XP</span>
-              <a
-                href={`https://leetcode.com/problems/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Open ${p.title} on LeetCode`}
-              >
-                <ExternalLink className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-pointer" />
-              </a>
+              
+              <div className="flex-1">
+                <WeekAccordion 
+                  week={week} 
+                  isCurrent={week.weekNumber === roadmapData.currentWeek} 
+                />
+              </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Week Grid */}
-      <h2 className="text-base font-semibold text-gray-900 mb-4">All Weeks</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {weeks.map((w) => (
-          <div
-            key={w.n}
-            className={`border rounded-xl p-4 ${
-              w.status === "done" ? "bg-green-50 border-green-200" :
-              w.status === "active" ? "bg-blue-50 border-blue-500 border-2" :
-              "bg-gray-50 border-gray-200"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-gray-500">WEEK {w.n}</span>
-              {w.status === "done" && <CheckCircle className="w-4 h-4 text-green-600" />}
-              {w.status === "locked" && <Lock className="w-4 h-4 text-gray-300" />}
-              {w.status === "active" && <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />}
-            </div>
-            <div className="font-semibold text-gray-900 text-sm">{w.topic}</div>
-            <div className={`text-xs mt-1 ${
-              w.status === "done" ? "text-green-600" :
-              w.status === "active" ? "text-blue-600" : "text-gray-400"
-            }`}>
-              {w.status === "done" ? `Completed · ${w.xp}` :
-               w.status === "active" ? `In Progress · ${w.xp}` : "Locked"}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
+  );
+}
+
+export default function RoadmapPage() {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-gray-500">Loading roadmap...</div>}>
+      <RoadmapContent />
+    </Suspense>
   );
 }
