@@ -54,6 +54,7 @@ export default function LoginPage() {
         <p className="text-sm text-gray-500 mb-6">NST Interview Intelligence Portal</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div id="clerk-captcha"></div>
           {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
