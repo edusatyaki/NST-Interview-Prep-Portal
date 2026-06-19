@@ -31,11 +31,13 @@ export default function LoginPage() {
         await setActive({ session: result.createdSessionId });
         router.push("/dashboard");
       } else {
-        setError("Sign-in could not complete. Please try again.");
+        console.error(result);
+        setError(`Incomplete Status: ${result.status}`);
       }
     } catch (err: unknown) {
-      const clerkError = err as { errors?: { message: string }[] };
-      setError(clerkError?.errors?.[0]?.message ?? "Invalid email or password.");
+      console.error("Clerk Error:", err);
+      const clerkError = err as { errors?: { message: string; longMessage?: string }[] };
+      setError(clerkError?.errors?.[0]?.longMessage ?? clerkError?.errors?.[0]?.message ?? `Raw Error: ${JSON.stringify(err)}`);
     } finally {
       setLoading(false);
     }
