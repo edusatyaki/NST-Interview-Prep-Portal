@@ -117,6 +117,15 @@ export default function LoginPage() {
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? "Signing in..." : "Sign In"}
           </button>
+          
+          {/* EMERGENCY GUEST BUTTON */}
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2.5 rounded-lg text-sm transition-colors border border-gray-300"
+          >
+            Guest Access (Demo Mode)
+          </button>
         </form>
 
         <p className="text-sm text-center text-gray-500 mt-6">

@@ -7,10 +7,10 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Protect all non-public routes
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-  }
+  // EMERGENCY DEMO MODE: Bypassing Clerk protection so teachers can view the Vercel link!
+  // if (!isPublicRoute(req)) {
+  //   await auth.protect();
+  // }
 });
 
 export const config = {
