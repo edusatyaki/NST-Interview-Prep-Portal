@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [step, setStep] = useState<"form" | "verify">("form");
+  const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,6 +29,7 @@ export default function RegisterPage() {
 
     try {
       await signUp.create({
+        username,
         firstName,
         lastName,
         emailAddress: email,
@@ -118,6 +120,20 @@ export default function RegisterPage() {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
+
+              {/* Username */}
+              <div>
+                <label htmlFor="reg-username" className="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
+                <input
+                  id="reg-username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="rahul_nst"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               {/* Email */}
