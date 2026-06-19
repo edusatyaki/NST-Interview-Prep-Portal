@@ -1,5 +1,6 @@
 "use client";
 import { CheckCircle, Lock, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 const weeks = [
   { n: 1, topic: "Arrays & Strings", status: "done", xp: "80 XP" },
@@ -68,7 +69,14 @@ export default function RoadmapPage() {
                 p.diff === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600"
               }`}>{p.diff}</span>
               <span className="text-xs text-amber-600 font-medium">+{p.xp} XP</span>
-              <ExternalLink className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-pointer" />
+              <a
+                href={`https://leetcode.com/problems/${p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${p.title} on LeetCode`}
+              >
+                <ExternalLink className="w-4 h-4 text-blue-400 hover:text-blue-600 cursor-pointer" />
+              </a>
             </div>
           ))}
         </div>

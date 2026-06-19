@@ -1,28 +1,24 @@
 /**
  * MOCK DATA LAYER — PlacePrep Student Portal
  *
- * This file is the single source of truth for all dummy/hardcoded data.
- * When the backend is ready, replace each exported function/constant with
- * a real API call (fetch, axios, SWR, React Query, etc.).
+ * Single source of truth for all dummy/hardcoded data.
+ * When backend is ready, replace each function/constant with a real API call.
  *
- * Pattern for backend integration:
- *   BEFORE (mock):  export const getCompanyIntel = (name: string) => companyIntelMap[name] ?? defaultCompanyIntel;
- *   AFTER  (real):  export const getCompanyIntel = async (name: string) => fetch(`/api/companies/${name}`).then(r => r.json());
+ * PATTERN:
+ *   BEFORE (mock):  export const getCompanyIntel = (slug: string) => companyIntelMap[slug] ?? defaultIntel;
+ *   AFTER  (real):  export const getCompanyIntel = async (slug: string) => fetch(`/api/companies/${slug}`).then(r => r.json());
+ *
+ * Backend: Node.js + Express (or equivalent)
+ * Database: PostgreSQL / MongoDB
  */
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
 // TYPES
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
 
-export type CompanyCategory =
-  | "maang"
-  | "product"
-  | "service"
-  | "startup"
-  | "bfsi"
-  | "other";
-
+export type CompanyCategory = "maang" | "product" | "service" | "startup" | "bfsi" | "other";
 export type Difficulty = "Easy" | "Medium" | "Hard";
+export type RoundType = "Coding" | "System Design" | "HR" | "Aptitude" | "LLD" | "Domain";
 
 export interface TopicRating {
   id: string;
@@ -30,15 +26,35 @@ export interface TopicRating {
   defaultRating: number;
 }
 
+/** A single interview question — tagged with company, round, topic, difficulty */
 export interface Question {
+  id: number;
   title: string;
   topic: string;
   diff: Difficulty;
+  roundType: RoundType;
+  /** Companies that asked this question */
+  companies: string[];
+  /** LeetCode or source URL. BACKEND TODO: store in questions.source_url */
+  leetcodeUrl?: string;
+  xp: number;
   hot: boolean;
+  /** frequency as % of interviews for this company where question appeared */
+  frequency?: number;
+}
+
+/** A named round group used in the company Questions tab */
+export interface RoundGroup {
+  round: number;
+  name: string;
+  type: RoundType;
+  description: string;
+  questions: Question[];
 }
 
 export interface CompanyIntel {
   name: string;
+  slug: string;
   successRate: string;
   avgSalary: string;
   difficulty: string;
@@ -51,15 +67,26 @@ export interface CompanyIntel {
   difficultyBreakdown: { name: string; value: number; color: string }[];
   trendData: { year: string; DSA: number; SystemDesign: number; Behavioral: number }[];
   sampleQuestions: Question[];
+  /** Round-wise grouped questions — used in Company Intel → Questions tab */
+  roundQuestions: RoundGroup[];
 }
 
-// ─────────────────────────────────────────────
+/** Entry in the global search index */
+export interface SearchResult {
+  type: "company" | "question" | "topic";
+  label: string;
+  subtitle: string;
+  href: string;
+  slug?: string;
+  color?: string;
+  initial?: string;
+}
+
+// ─────────────────────────────────────────────────────
 // ONBOARDING — TOPICS BY COMPANY CATEGORY
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
 /**
- * BACKEND TODO: Replace this map with an API call:
- *   GET /api/onboarding/topics?category={category}
- * The response should return TopicRating[] for the selected category.
+ * BACKEND TODO: GET /api/onboarding/topics?categories=maang,product
  */
 export const topicsByCategory: Record<CompanyCategory, TopicRating[]> = {
   maang: [
@@ -117,11 +144,6 @@ export const topicsByCategory: Record<CompanyCategory, TopicRating[]> = {
   ],
 };
 
-/**
- * Helper to get topics for a given set of selected categories.
- * If multiple categories are selected, it merges topics (deduped by id).
- * BACKEND TODO: Replace with GET /api/onboarding/topics?categories=maang,product
- */
 export function getTopicsForCategories(categories: CompanyCategory[]): TopicRating[] {
   if (categories.length === 0) return topicsByCategory.other;
   const seen = new Set<string>();
@@ -137,39 +159,157 @@ export function getTopicsForCategories(categories: CompanyCategory[]): TopicRati
   return merged;
 }
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
+// COMPANY QUESTIONS BANK
+// All questions tagged with companies[], roundType, topic, difficulty
+// BACKEND TODO: GET /api/questions?company=google&roundType=Coding
+// ─────────────────────────────────────────────────────
+
+export const allQuestions: Question[] = [
+  // ── GOOGLE ──────────────────────────────────────
+  { id: 1,  title: "Two Sum",                          topic: "Arrays",        diff: "Easy",   roundType: "Coding",        companies: ["google","amazon","microsoft"], leetcodeUrl: "https://leetcode.com/problems/two-sum/",                          xp: 10,  hot: true,  frequency: 89 },
+  { id: 2,  title: "Merge Intervals",                  topic: "Arrays",        diff: "Medium", roundType: "Coding",        companies: ["google","amazon"],             leetcodeUrl: "https://leetcode.com/problems/merge-intervals/",                  xp: 25,  hot: true,  frequency: 76 },
+  { id: 3,  title: "Maximum Subarray",                 topic: "Arrays",        diff: "Medium", roundType: "Coding",        companies: ["google"],                     leetcodeUrl: "https://leetcode.com/problems/maximum-subarray/",                 xp: 20,  hot: false, frequency: 71 },
+  { id: 4,  title: "Word Search II",                   topic: "Backtracking",  diff: "Hard",   roundType: "Coding",        companies: ["google"],                     leetcodeUrl: "https://leetcode.com/problems/word-search-ii/",                   xp: 40,  hot: true,  frequency: 65 },
+  { id: 5,  title: "Trapping Rain Water",              topic: "Arrays",        diff: "Hard",   roundType: "Coding",        companies: ["google","amazon"],             leetcodeUrl: "https://leetcode.com/problems/trapping-rain-water/",              xp: 40,  hot: true,  frequency: 68 },
+  { id: 6,  title: "Number of Islands",                topic: "Graphs",        diff: "Medium", roundType: "Coding",        companies: ["google","amazon","microsoft"], leetcodeUrl: "https://leetcode.com/problems/number-of-islands/",                xp: 25,  hot: true,  frequency: 72 },
+  { id: 7,  title: "Design a URL Shortener",           topic: "System Design", diff: "Medium", roundType: "System Design", companies: ["google"],                     xp: 50,  hot: true,  frequency: 58 },
+  { id: 8,  title: "Design Google Drive",              topic: "System Design", diff: "Hard",   roundType: "System Design", companies: ["google"],                     xp: 60,  hot: true,  frequency: 52 },
+  { id: 9,  title: "Design a Rate Limiter",            topic: "System Design", diff: "Hard",   roundType: "System Design", companies: ["google","amazon"],             xp: 60,  hot: false, frequency: 45 },
+  { id: 10, title: "Tell me about a time you failed",  topic: "Behavioral",    diff: "Medium", roundType: "HR",            companies: ["google","amazon","microsoft"], xp: 15,  hot: false, frequency: 90 },
+  { id: 11, title: "Describe a conflict with a peer",  topic: "Behavioral",    diff: "Medium", roundType: "HR",            companies: ["google"],                     xp: 15,  hot: false, frequency: 80 },
+  { id: 12, title: "Why Google?",                      topic: "Behavioral",    diff: "Easy",   roundType: "HR",            companies: ["google"],                     xp: 10,  hot: false, frequency: 95 },
+  { id: 13, title: "Longest Substring Without Repeating", topic: "Sliding Window", diff: "Medium", roundType: "Coding",   companies: ["google","amazon","flipkart"],  leetcodeUrl: "https://leetcode.com/problems/longest-substring-without-repeating-characters/", xp: 25, hot: true, frequency: 78 },
+  { id: 14, title: "Binary Tree Level Order Traversal", topic: "Trees",        diff: "Medium", roundType: "Coding",        companies: ["google","microsoft"],          leetcodeUrl: "https://leetcode.com/problems/binary-tree-level-order-traversal/",xp: 25,  hot: false, frequency: 62 },
+  { id: 15, title: "Word Ladder",                      topic: "BFS",           diff: "Hard",   roundType: "Coding",        companies: ["google"],                     leetcodeUrl: "https://leetcode.com/problems/word-ladder/",                      xp: 40,  hot: false, frequency: 55 },
+
+  // ── AMAZON ──────────────────────────────────────
+  { id: 16, title: "LRU Cache Implementation",         topic: "Design",        diff: "Medium", roundType: "Coding",        companies: ["amazon","microsoft","flipkart"], leetcodeUrl: "https://leetcode.com/problems/lru-cache/",                      xp: 25,  hot: true,  frequency: 82 },
+  { id: 17, title: "K-th Largest Element in Array",    topic: "Heaps",         diff: "Medium", roundType: "Coding",        companies: ["amazon"],                     leetcodeUrl: "https://leetcode.com/problems/kth-largest-element-in-an-array/", xp: 25,  hot: false, frequency: 74 },
+  { id: 18, title: "Coin Change",                      topic: "DP",            diff: "Medium", roundType: "Coding",        companies: ["amazon","flipkart"],           leetcodeUrl: "https://leetcode.com/problems/coin-change/",                      xp: 25,  hot: false, frequency: 69 },
+  { id: 19, title: "Design Amazon Prime Video",        topic: "System Design", diff: "Hard",   roundType: "System Design", companies: ["amazon"],                     xp: 60,  hot: false, frequency: 42 },
+  { id: 20, title: "Tell me about a time you owned something end-to-end", topic: "LP", diff: "Medium", roundType: "HR",   companies: ["amazon"],                     xp: 15,  hot: true,  frequency: 95 },
+  { id: 21, title: "Describe a situation where you disagreed with your manager", topic: "LP", diff: "Medium", roundType: "HR", companies: ["amazon"],                 xp: 15,  hot: true,  frequency: 90 },
+  { id: 22, title: "Serialize and Deserialize Binary Tree", topic: "Trees",    diff: "Hard",   roundType: "Coding",        companies: ["amazon","google"],             leetcodeUrl: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", xp: 40, hot: true, frequency: 58 },
+
+  // ── FLIPKART ─────────────────────────────────────
+  { id: 23, title: "House Robber",                     topic: "DP",            diff: "Medium", roundType: "Coding",        companies: ["flipkart"],                   leetcodeUrl: "https://leetcode.com/problems/house-robber/",                     xp: 20,  hot: false, frequency: 72 },
+  { id: 24, title: "Design a Parking Lot",             topic: "LLD",           diff: "Medium", roundType: "LLD",           companies: ["flipkart","microsoft"],        xp: 50,  hot: true,  frequency: 68 },
+  { id: 25, title: "Design BookMyShow",                topic: "LLD",           diff: "Hard",   roundType: "LLD",           companies: ["flipkart"],                   xp: 60,  hot: true,  frequency: 55 },
+  { id: 26, title: "Merge K Sorted Lists",             topic: "Heaps",         diff: "Hard",   roundType: "Coding",        companies: ["flipkart","microsoft","amazon"], leetcodeUrl: "https://leetcode.com/problems/merge-k-sorted-lists/",           xp: 40,  hot: true,  frequency: 65 },
+  { id: 27, title: "What is a database index?",        topic: "DBMS",          diff: "Easy",   roundType: "Domain",        companies: ["flipkart","tcs"],              xp: 10,  hot: false, frequency: 80 },
+
+  // ── MICROSOFT ────────────────────────────────────
+  { id: 28, title: "Valid Parentheses",                topic: "Stacks",        diff: "Easy",   roundType: "Coding",        companies: ["microsoft","meta"],            leetcodeUrl: "https://leetcode.com/problems/valid-parentheses/",               xp: 10,  hot: false, frequency: 77 },
+  { id: 29, title: "Reverse Linked List",              topic: "Linked List",   diff: "Easy",   roundType: "Coding",        companies: ["microsoft","google","amazon"], leetcodeUrl: "https://leetcode.com/problems/reverse-linked-list/",              xp: 10,  hot: false, frequency: 82 },
+  { id: 30, title: "Design a Notification System",     topic: "System Design", diff: "Medium", roundType: "System Design", companies: ["microsoft"],                  xp: 50,  hot: false, frequency: 38 },
+
+  // ── TCS / SERVICE ────────────────────────────────
+  { id: 31, title: "What is normalization?",           topic: "DBMS",          diff: "Easy",   roundType: "Domain",        companies: ["tcs","infosys","wipro"],       xp: 10,  hot: false, frequency: 85 },
+  { id: 32, title: "Explain OSI model layers",         topic: "Networking",    diff: "Easy",   roundType: "Domain",        companies: ["tcs","infosys"],               xp: 10,  hot: false, frequency: 80 },
+  { id: 33, title: "What is the difference between process and thread?", topic: "OS", diff: "Easy", roundType: "Domain",  companies: ["tcs","infosys","wipro"],       xp: 10,  hot: false, frequency: 88 },
+  { id: 34, title: "TCS NQT Aptitude — Speed & Distance", topic: "Aptitude",  diff: "Easy",   roundType: "Aptitude",      companies: ["tcs"],                        xp: 10,  hot: false, frequency: 90 },
+  { id: 35, title: "TCS NQT Aptitude — Profit & Loss",    topic: "Aptitude",  diff: "Easy",   roundType: "Aptitude",      companies: ["tcs"],                        xp: 10,  hot: false, frequency: 88 },
+  { id: 36, title: "Find duplicate in array",          topic: "Arrays",        diff: "Easy",   roundType: "Coding",        companies: ["tcs","infosys"],               leetcodeUrl: "https://leetcode.com/problems/find-the-duplicate-number/",        xp: 10,  hot: false, frequency: 75 },
+
+  // ── RAZORPAY / STARTUP ───────────────────────────
+  { id: 37, title: "Design a Payment Gateway",         topic: "System Design", diff: "Hard",   roundType: "System Design", companies: ["razorpay"],                   xp: 60,  hot: true,  frequency: 85 },
+  { id: 38, title: "Implement a Rate Limiter",         topic: "System Design", diff: "Medium", roundType: "System Design", companies: ["razorpay"],                   xp: 50,  hot: true,  frequency: 75 },
+  { id: 39, title: "Explain webhook vs polling",       topic: "System Design", diff: "Easy",   roundType: "Domain",        companies: ["razorpay"],                   xp: 15,  hot: false, frequency: 70 },
+  { id: 40, title: "Longest Common Subsequence",       topic: "DP",            diff: "Medium", roundType: "Coding",        companies: ["razorpay","amazon","google"],  leetcodeUrl: "https://leetcode.com/problems/longest-common-subsequence/",       xp: 25,  hot: false, frequency: 60 },
+];
+
+// ─────────────────────────────────────────────────────
+// HELPERS — Questions filtering
+// BACKEND TODO: Replace with GET /api/questions?company=X&topic=Y&difficulty=Z&roundType=W&search=Q&page=N
+// ─────────────────────────────────────────────────────
+
+export interface QuestionFilter {
+  company?: string;
+  topic?: string;
+  difficulty?: string; // "Easy" | "Medium" | "Hard" | ""
+  roundType?: string;  // RoundType | ""
+  search?: string;
+}
+
+export function filterQuestions(filters: QuestionFilter): Question[] {
+  return allQuestions.filter((q) => {
+    if (filters.company && filters.company !== "All") {
+      if (!q.companies.includes(filters.company.toLowerCase())) return false;
+    }
+    if (filters.topic && filters.topic !== "All") {
+      if (!q.topic.toLowerCase().includes(filters.topic.toLowerCase())) return false;
+    }
+    if (filters.difficulty && filters.difficulty !== "") {
+      if (q.diff !== filters.difficulty) return false;
+    }
+    if (filters.roundType && filters.roundType !== "") {
+      if (q.roundType !== filters.roundType) return false;
+    }
+    if (filters.search && filters.search.trim() !== "") {
+      if (!q.title.toLowerCase().includes(filters.search.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+/** Get questions for a specific company grouped by round type */
+export function getCompanyRoundQuestions(slug: string): RoundGroup[] {
+  const companySlug = slug.toLowerCase();
+  const qs = allQuestions.filter((q) => q.companies.includes(companySlug));
+
+  const roundOrder: { type: RoundType; name: string; description: string }[] = [
+    { type: "Aptitude",      name: "Round 1 — Aptitude / Online Assessment", description: "Quantitative, logical reasoning, and verbal ability questions." },
+    { type: "Coding",        name: "Round 2 — DSA / Coding",                 description: "Data Structures & Algorithms problems, timed coding rounds." },
+    { type: "LLD",           name: "Round 3 — Low Level Design",             description: "Object-oriented design, design patterns, class diagrams." },
+    { type: "System Design", name: "Round 4 — System Design (HLD)",          description: "High-level distributed systems architecture design." },
+    { type: "Domain",        name: "Round 5 — Technical / Domain",           description: "Core CS concepts: OS, DBMS, Networking, Language-specific." },
+    { type: "HR",            name: "Final Round — HR / Behavioral",          description: "Behavioral questions, culture fit, leadership principles." },
+  ];
+
+  const groups: RoundGroup[] = [];
+  roundOrder.forEach((r, idx) => {
+    const roundQs = qs.filter((q) => q.roundType === r.type);
+    if (roundQs.length > 0) {
+      groups.push({ round: idx + 1, name: r.name, type: r.type, description: r.description, questions: roundQs });
+    }
+  });
+  return groups;
+}
+
+// ─────────────────────────────────────────────────────
 // COMPANY INTEL
-// ─────────────────────────────────────────────
-/**
- * BACKEND TODO: Replace with GET /api/companies/:name
- */
+// BACKEND TODO: GET /api/companies/:slug
+// ─────────────────────────────────────────────────────
+
 const defaultCompanyIntel: CompanyIntel = {
   name: "Company",
+  slug: "company",
   successRate: "18.4%",
-  avgSalary: "$190k",
+  avgSalary: "₹18 LPA",
   difficulty: "8.5",
   totalQuestions: "1,240",
   hiringStatus: "Active Hiring",
-  avgProcess: "4-6 Weeks",
+  avgProcess: "4–6 Weeks",
   hiringNote: "Currently actively hiring for engineering roles.",
   roundStructure: [
-    { n: 1, name: "Phone Screen", dur: "45 mins • Coding" },
-    { n: 2, name: "Onsite: Coding 1", dur: "45 mins • DSA" },
-    { n: 3, name: "Onsite: Coding 2", dur: "45 mins • DSA" },
-    { n: 4, name: "Onsite: Behavioral", dur: "45 mins • Behavioral" },
+    { n: 1, name: "Online Assessment", dur: "90 mins • DSA + Aptitude" },
+    { n: 2, name: "Technical Round",   dur: "60 mins • DSA" },
+    { n: 3, name: "System Design",     dur: "45 mins • HLD/LLD" },
+    { n: 4, name: "HR Round",          dur: "30 mins • Behavioral" },
   ],
   topTopics: [
     { topic: "Dynamic Programming", pct: 28 },
-    { topic: "Graphs / DFS", pct: 22 },
-    { topic: "Trees", pct: 18 },
-    { topic: "Arrays & Strings", pct: 15 },
-    { topic: "Binary Search", pct: 10 },
-    { topic: "System Design", pct: 7 },
+    { topic: "Graphs / DFS",        pct: 22 },
+    { topic: "Trees",               pct: 18 },
+    { topic: "Arrays & Strings",    pct: 15 },
+    { topic: "Binary Search",       pct: 10 },
+    { topic: "System Design",       pct: 7 },
   ],
   difficultyBreakdown: [
-    { name: "Easy", value: 5, color: "#10B981" },
+    { name: "Easy",   value: 5,  color: "#10B981" },
     { name: "Medium", value: 40, color: "#F59E0B" },
-    { name: "Hard", value: 55, color: "#EF4444" },
+    { name: "Hard",   value: 55, color: "#EF4444" },
   ],
   trendData: [
     { year: "2022", DSA: 60, SystemDesign: 20, Behavioral: 15 },
@@ -177,100 +317,290 @@ const defaultCompanyIntel: CompanyIntel = {
     { year: "2024", DSA: 55, SystemDesign: 28, Behavioral: 14 },
     { year: "2025", DSA: 55, SystemDesign: 30, Behavioral: 15 },
   ],
-  sampleQuestions: [
-    { title: "Two Sum", topic: "Arrays", diff: "Easy", hot: true },
-    { title: "Merge Intervals", topic: "Arrays", diff: "Medium", hot: true },
-    { title: "LRU Cache", topic: "System Design", diff: "Hard", hot: false },
-    { title: "Number of Islands", topic: "Graphs", diff: "Medium", hot: true },
-    { title: "Word Break", topic: "DP", diff: "Medium", hot: false },
-  ],
+  sampleQuestions: allQuestions.slice(0, 5),
+  roundQuestions: [],
 };
 
 const companyIntelMap: Record<string, Partial<CompanyIntel>> = {
   google: {
     name: "Google",
+    slug: "google",
     successRate: "18.4%",
-    avgSalary: "$195k",
+    avgSalary: "₹45 LPA",
     difficulty: "9.2",
-    totalQuestions: "1,840",
+    totalQuestions: "2,274",
     hiringStatus: "Active Hiring",
-    avgProcess: "6-8 Weeks",
-    hiringNote: "Google has recently increased hiring for L3/L4 roles, specifically targeting cloud infrastructure and applied AI backgrounds.",
+    avgProcess: "6–8 Weeks",
+    hiringNote: "Google recently increased hiring for L3/L4 roles, targeting cloud infrastructure and applied AI. Expect 4 back-to-back 45-minute Zoom sessions post-OA.",
     roundStructure: [
-      { n: 1, name: "Phone Screen", dur: "45 mins • Coding" },
-      { n: 2, name: "Onsite: Coding 1", dur: "45 mins • DSA" },
-      { n: 3, name: "Onsite: Coding 2", dur: "45 mins • DSA" },
-      { n: 4, name: "Onsite: Googlyness", dur: "45 mins • Behavioral" },
+      { n: 1, name: "Online Assessment",   dur: "90 mins • 2 DSA problems" },
+      { n: 2, name: "Onsite: Coding 1",    dur: "45 mins • DSA" },
+      { n: 3, name: "Onsite: Coding 2",    dur: "45 mins • DSA" },
+      { n: 4, name: "Onsite: Googlyness",  dur: "45 mins • Behavioral" },
+    ],
+    topTopics: [
+      { topic: "Arrays & Strings",    pct: 89 },
+      { topic: "Dynamic Programming", pct: 76 },
+      { topic: "Graphs",              pct: 71 },
+      { topic: "Trees",               pct: 68 },
+      { topic: "Binary Search",       pct: 64 },
+      { topic: "System Design",       pct: 58 },
+    ],
+    difficultyBreakdown: [
+      { name: "Easy",   value: 4,  color: "#10B981" },
+      { name: "Medium", value: 41, color: "#F59E0B" },
+      { name: "Hard",   value: 55, color: "#EF4444" },
+    ],
+    trendData: [
+      { year: "2022", DSA: 65, SystemDesign: 20, Behavioral: 15 },
+      { year: "2023", DSA: 62, SystemDesign: 23, Behavioral: 15 },
+      { year: "2024", DSA: 58, SystemDesign: 27, Behavioral: 15 },
+      { year: "2025", DSA: 55, SystemDesign: 30, Behavioral: 15 },
     ],
   },
   amazon: {
     name: "Amazon",
+    slug: "amazon",
     successRate: "22.1%",
-    avgSalary: "$185k",
+    avgSalary: "₹38 LPA",
     difficulty: "8.8",
-    totalQuestions: "2,100",
+    totalQuestions: "1,957",
     hiringStatus: "Active Hiring",
-    avgProcess: "4-6 Weeks",
-    hiringNote: "Amazon heavily emphasises Leadership Principles in all rounds alongside strong DSA fundamentals.",
+    avgProcess: "4–6 Weeks",
+    hiringNote: "Amazon heavily emphasises Leadership Principles in every round. Prepare STAR stories for all 16 LPs. DSA is primarily medium difficulty.",
     roundStructure: [
-      { n: 1, name: "Online Assessment", dur: "90 mins • DSA + LP" },
-      { n: 2, name: "Phone Screen", dur: "60 mins • Coding" },
-      { n: 3, name: "Loop Interview", dur: "5 rounds • DSA + LP" },
+      { n: 1, name: "Online Assessment",  dur: "90 mins • DSA + LP" },
+      { n: 2, name: "Phone Screen",       dur: "60 mins • Coding" },
+      { n: 3, name: "Loop Interview",     dur: "5 rounds • DSA + LP" },
+    ],
+    topTopics: [
+      { topic: "Arrays & Strings",    pct: 82 },
+      { topic: "Dynamic Programming", pct: 69 },
+      { topic: "Trees",               pct: 65 },
+      { topic: "Leadership Principles", pct: 90 },
+      { topic: "System Design",       pct: 55 },
+      { topic: "Heaps",               pct: 48 },
+    ],
+  },
+  flipkart: {
+    name: "Flipkart",
+    slug: "flipkart",
+    successRate: "28.4%",
+    avgSalary: "₹32 LPA",
+    difficulty: "8.2",
+    totalQuestions: "892",
+    hiringStatus: "Active Hiring",
+    avgProcess: "3–5 Weeks",
+    hiringNote: "Flipkart conducts a strong LLD round (Parking Lot, BookMyShow). Machine Coding rounds are timed (90 mins). Expect DSA + LLD + HLD for SDE-2.",
+    roundStructure: [
+      { n: 1, name: "Online Assessment",  dur: "90 mins • DSA" },
+      { n: 2, name: "Machine Coding",     dur: "90 mins • LLD" },
+      { n: 3, name: "System Design HLD",  dur: "60 mins • HLD" },
+      { n: 4, name: "HR Round",           dur: "30 mins • Behavioral" },
+    ],
+    topTopics: [
+      { topic: "Arrays & DP",     pct: 85 },
+      { topic: "LLD / OOD",       pct: 68 },
+      { topic: "System Design",   pct: 55 },
+      { topic: "Trees & Graphs",  pct: 60 },
+      { topic: "DBMS",            pct: 45 },
+      { topic: "Behavioral",      pct: 70 },
     ],
   },
   microsoft: {
     name: "Microsoft",
+    slug: "microsoft",
     successRate: "25.3%",
-    avgSalary: "$180k",
+    avgSalary: "₹35 LPA",
     difficulty: "8.1",
     totalQuestions: "1,560",
     hiringStatus: "Active Hiring",
-    avgProcess: "4-6 Weeks",
-    hiringNote: "Microsoft focuses on problem-solving ability and collaborative mindset. LLD is increasingly important.",
+    avgProcess: "4–6 Weeks",
+    hiringNote: "Microsoft focuses on collaborative problem-solving. LLD and design patterns are increasingly tested. Culture-fit round is an important differentiator.",
+    roundStructure: [
+      { n: 1, name: "Online Coding",  dur: "60 mins • DSA" },
+      { n: 2, name: "Technical 1",    dur: "60 mins • DSA" },
+      { n: 3, name: "Technical 2",    dur: "45 mins • LLD" },
+      { n: 4, name: "HR / Culture",   dur: "30 mins • Behavioral" },
+    ],
+    topTopics: [
+      { topic: "Arrays & Strings",    pct: 78 },
+      { topic: "Trees",               pct: 72 },
+      { topic: "LLD / Design",        pct: 60 },
+      { topic: "Dynamic Programming", pct: 58 },
+      { topic: "Graphs",              pct: 52 },
+      { topic: "Behavioral",          pct: 75 },
+    ],
+  },
+  tcs: {
+    name: "TCS",
+    slug: "tcs",
+    successRate: "62.0%",
+    avgSalary: "₹7 LPA",
+    difficulty: "5.5",
+    totalQuestions: "480",
+    hiringStatus: "Active Hiring",
+    avgProcess: "2–4 Weeks",
+    hiringNote: "TCS NQT is the primary filter — focus on Aptitude, Verbal, and basic Coding. Technical interview is mainly CS fundamentals (OS, DBMS, CN, OOP).",
+    roundStructure: [
+      { n: 1, name: "NQT Aptitude",     dur: "90 mins • Aptitude + Verbal" },
+      { n: 2, name: "NQT Coding",       dur: "60 mins • Basic Coding" },
+      { n: 3, name: "Technical Interview", dur: "30 mins • CS Fundamentals" },
+      { n: 4, name: "HR Round",         dur: "20 mins • HR" },
+    ],
+    topTopics: [
+      { topic: "Aptitude",         pct: 90 },
+      { topic: "DBMS",             pct: 85 },
+      { topic: "OS Concepts",      pct: 82 },
+      { topic: "Networking",       pct: 80 },
+      { topic: "OOP",              pct: 78 },
+      { topic: "Arrays (Basic)",   pct: 75 },
+    ],
+    difficultyBreakdown: [
+      { name: "Easy",   value: 60, color: "#10B981" },
+      { name: "Medium", value: 35, color: "#F59E0B" },
+      { name: "Hard",   value: 5,  color: "#EF4444" },
+    ],
+  },
+  razorpay: {
+    name: "Razorpay",
+    slug: "razorpay",
+    successRate: "31.0%",
+    avgSalary: "₹28 LPA",
+    difficulty: "7.8",
+    totalQuestions: "310",
+    hiringStatus: "Active Hiring",
+    avgProcess: "3–4 Weeks",
+    hiringNote: "Razorpay focuses heavily on System Design relevant to payments (rate limiting, idempotency, webhooks). DSA is medium-difficulty. Domain knowledge of fintech is a plus.",
+    roundStructure: [
+      { n: 1, name: "DSA Coding",       dur: "60 mins • Coding" },
+      { n: 2, name: "System Design",    dur: "60 mins • HLD" },
+      { n: 3, name: "Domain / Culture", dur: "30 mins • Fintech" },
+      { n: 4, name: "HR Round",         dur: "20 mins • Behavioral" },
+    ],
+    topTopics: [
+      { topic: "System Design",   pct: 85 },
+      { topic: "Arrays & DSA",    pct: 72 },
+      { topic: "Fintech Concepts", pct: 70 },
+      { topic: "Behavioral",      pct: 65 },
+      { topic: "DP",              pct: 55 },
+      { topic: "Graphs",          pct: 45 },
+    ],
   },
 };
 
-export function getCompanyIntel(name: string): CompanyIntel {
-  const override = companyIntelMap[name.toLowerCase()] ?? {};
-  return { ...defaultCompanyIntel, ...override };
+export function getCompanyIntel(slug: string): CompanyIntel {
+  const override = companyIntelMap[slug.toLowerCase()] ?? {};
+  const base = { ...defaultCompanyIntel, ...override };
+  // Always attach dynamic round questions
+  base.roundQuestions = getCompanyRoundQuestions(slug);
+  return base;
 }
 
 export const companyBgColors: Record<string, string> = {
-  google: "bg-blue-600",
-  amazon: "bg-orange-500",
+  google:    "bg-blue-600",
+  amazon:    "bg-orange-500",
   microsoft: "bg-teal-600",
-  flipkart: "bg-blue-500",
-  tcs: "bg-indigo-600",
-  infosys: "bg-blue-700",
-  uber: "bg-gray-800",
-  meta: "bg-blue-700",
-  apple: "bg-gray-600",
+  flipkart:  "bg-blue-500",
+  tcs:       "bg-indigo-600",
+  infosys:   "bg-blue-700",
+  uber:      "bg-gray-800",
+  meta:      "bg-blue-700",
+  apple:     "bg-gray-600",
+  razorpay:  "bg-blue-800",
+  swiggy:    "bg-orange-600",
 };
 
-export function getCompanyBg(name: string): string {
-  return companyBgColors[name.toLowerCase()] ?? "bg-blue-600";
+export function getCompanyBg(slug: string): string {
+  return companyBgColors[slug.toLowerCase()] ?? "bg-blue-600";
 }
 
-// ─────────────────────────────────────────────
-// DASHBOARD
-// ─────────────────────────────────────────────
-/**
- * BACKEND TODO: Replace with GET /api/dashboard (authenticated)
- */
+// ─────────────────────────────────────────────────────
+// COMPANIES LIST
+// BACKEND TODO: GET /api/companies
+// ─────────────────────────────────────────────────────
+export const companiesList = [
+  { initial: "G", name: "Google",    color: "bg-blue-600",   questions: 2274, type: "FAANG",          topTopic: "Arrays",  slug: "google" },
+  { initial: "A", name: "Amazon",    color: "bg-orange-500", questions: 1957, type: "FAANG",          topTopic: "LP + DP", slug: "amazon" },
+  { initial: "M", name: "Microsoft", color: "bg-teal-600",   questions: 1560, type: "FAANG",          topTopic: "Trees",   slug: "microsoft" },
+  { initial: "F", name: "Flipkart",  color: "bg-blue-500",   questions: 892,  type: "Indian Product", topTopic: "LLD",     slug: "flipkart" },
+  { initial: "R", name: "Razorpay",  color: "bg-blue-800",   questions: 310,  type: "Indian Startup", topTopic: "SysDesign", slug: "razorpay" },
+  { initial: "T", name: "TCS",       color: "bg-indigo-600", questions: 480,  type: "Service",        topTopic: "Aptitude", slug: "tcs" },
+  { initial: "U", name: "Uber",      color: "bg-gray-800",   questions: 620,  type: "FAANG",          topTopic: "Graphs",  slug: "uber" },
+  { initial: "S", name: "Swiggy",    color: "bg-orange-600", questions: 245,  type: "Indian Product", topTopic: "System Design", slug: "swiggy" },
+  { initial: "I", name: "Infosys",   color: "bg-blue-700",   questions: 390,  type: "Service",        topTopic: "OOP",     slug: "infosys" },
+  { initial: "Z", name: "Zepto",     color: "bg-purple-600", questions: 180,  type: "Indian Startup", topTopic: "DSA",     slug: "zepto" },
+  { initial: "W", name: "Wipro",     color: "bg-violet-600", questions: 350,  type: "Service",        topTopic: "Aptitude", slug: "wipro" },
+  { initial: "P", name: "Paytm",     color: "bg-sky-600",    questions: 220,  type: "Indian Product", topTopic: "System Design", slug: "paytm" },
+];
+
+// ─────────────────────────────────────────────────────
+// GLOBAL SEARCH INDEX
+// BACKEND TODO: GET /api/search?q=google+sde1
+// ─────────────────────────────────────────────────────
+export const searchIndex: SearchResult[] = [
+  // Companies
+  ...companiesList.map((c) => ({
+    type: "company" as const,
+    label: c.name,
+    subtitle: `${c.questions.toLocaleString()} questions · ${c.type}`,
+    href: `/companies/${c.slug}`,
+    slug: c.slug,
+    color: c.color,
+    initial: c.initial,
+  })),
+  // Quick topics
+  { type: "topic", label: "Arrays & Strings",    subtitle: "89% of Google interviews",  href: "/practice?topic=Arrays" },
+  { type: "topic", label: "Dynamic Programming", subtitle: "76% of FAANG interviews",   href: "/practice?topic=DP" },
+  { type: "topic", label: "System Design (HLD)", subtitle: "Critical for SDE-2 roles",  href: "/practice?roundType=System+Design" },
+  { type: "topic", label: "LLD / Low Level Design", subtitle: "Flipkart, Microsoft",    href: "/practice?roundType=LLD" },
+  { type: "topic", label: "Graphs & BFS/DFS",    subtitle: "71% of Google interviews",  href: "/practice?topic=Graphs" },
+  { type: "topic", label: "Aptitude",            subtitle: "TCS NQT, Infosys Spectra",  href: "/practice?roundType=Aptitude" },
+  { type: "topic", label: "HR / Behavioral",     subtitle: "All companies",             href: "/practice?roundType=HR" },
+];
+
+export function searchAll(query: string): SearchResult[] {
+  if (!query.trim()) return [];
+  const q = query.toLowerCase();
+  return searchIndex.filter(
+    (r) =>
+      r.label.toLowerCase().includes(q) ||
+      r.subtitle.toLowerCase().includes(q)
+  ).slice(0, 8); // max 8 results
+}
+
+// ─────────────────────────────────────────────────────
+// DASHBOARD DATA
+// BACKEND TODO: GET /api/dashboard (authenticated, per-user)
+// ─────────────────────────────────────────────────────
 export const dashboardTargetCompanies = [
-  { initial: "G", name: "Google", role: "Software Engineer", readiness: 45, color: "bg-blue-600", href: "google" },
-  { initial: "A", name: "Amazon", role: "SDE II", readiness: 70, color: "bg-orange-500", href: "amazon" },
-  { initial: "M", name: "Microsoft", role: "Software Engineer", readiness: 20, color: "bg-teal-600", href: "microsoft" },
+  { initial: "G", name: "Google",    role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",   slug: "google" },
+  { initial: "A", name: "Amazon",    role: "SDE-1",      readiness: 70, color: "bg-orange-500", slug: "amazon" },
+  { initial: "F", name: "Flipkart",  role: "SDE-1",      readiness: 20, color: "bg-blue-500",   slug: "flipkart" },
 ];
 
 export const dashboardTodayProblems = [
-  { id: 1, title: "1. Two Sum", difficulty: "Easy" as Difficulty, xp: 10, done: true },
-  { id: 2, title: "242. Valid Anagram", difficulty: "Easy" as Difficulty, xp: 15, done: false },
+  { id: 1, title: "1. Two Sum",        difficulty: "Easy"   as Difficulty, xp: 10, done: true },
+  { id: 2, title: "242. Valid Anagram",  difficulty: "Easy"   as Difficulty, xp: 15, done: false },
   { id: 3, title: "49. Group Anagrams", difficulty: "Medium" as Difficulty, xp: 25, done: false },
 ];
 
 export const dashboardRecentReports = [
-  { initial: "U", name: "Uber", color: "bg-gray-800", role: "Software Engineer (L4)", rounds: 4, time: "2 days ago", tags: ["System Design", "Graphs"] },
-  { initial: "M", name: "Meta", color: "bg-blue-700", role: "Production Engineer", rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
-  { initial: "A", name: "Apple", color: "bg-gray-600", role: "Frontend Engineer", rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
+  { initial: "U", name: "Uber",  color: "bg-gray-800",  role: "Software Engineer (L4)", rounds: 4, time: "2 days ago", tags: ["System Design", "Graphs"] },
+  { initial: "M", name: "Meta",  color: "bg-blue-700",  role: "Production Engineer",    rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
+  { initial: "A", name: "Apple", color: "bg-gray-600",  role: "Frontend Engineer",      rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
 ];
+
+// ─────────────────────────────────────────────────────
+// UNIQUE TOPICS & COMPANIES (for filter dropdowns)
+// ─────────────────────────────────────────────────────
+export const allTopics = [
+  "Arrays", "DP", "Graphs", "Trees", "Binary Search",
+  "Heaps", "Stacks", "Linked List", "Sliding Window",
+  "Backtracking", "System Design", "LLD", "DBMS",
+  "OS", "Networking", "OOP", "Aptitude", "Behavioral",
+];
+
+export const allRoundTypes: RoundType[] = ["Coding", "System Design", "LLD", "HR", "Aptitude", "Domain"];
+
+export const allCompanySlugs = companiesList.map((c) => ({ slug: c.slug, name: c.name }));
