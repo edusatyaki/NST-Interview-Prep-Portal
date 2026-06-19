@@ -29,9 +29,9 @@ export default function Step4() {
         <Rocket className="w-10 h-10 text-blue-600" />
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">You're all set!</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">You&apos;re all set!</h1>
       <p className="text-sm text-gray-500 mb-8 max-w-sm">
-        Your personalised roadmap is ready. Here's what we've prepared based on your goals:
+        Your personalised roadmap is ready. Here&apos;s what we&apos;ve prepared based on your goals:
       </p>
 
       {/* Summary card */}

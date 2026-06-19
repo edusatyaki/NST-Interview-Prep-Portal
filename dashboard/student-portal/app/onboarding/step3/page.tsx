@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, ArrowLeft, Info } from "lucide-react";
 import Stepper from "@/components/onboarding/Stepper";
@@ -9,29 +9,36 @@ const durations = ["4 weeks", "8 weeks", "12 weeks", "16 weeks", "24 weeks"];
 
 export default function SelfRatingPage() {
   const router = useRouter();
-  const [topics, setTopics] = useState<TopicRating[]>([]);
-  const [ratings, setRatings] = useState<Record<string, number>>({});
-  const [time, setTime] = useState("12 weeks");
-
-  useEffect(() => {
-    // Read selected categories from Step 2
+  // Lazy initialisers read sessionStorage once — no useEffect needed
+  const [topics] = useState<TopicRating[]>(() => {
     // BACKEND TODO: replace with GET /api/users/me/onboarding-state
-    let categories: CompanyCategory[] = [];
-    if (typeof window !== "undefined") {
-      try {
-        const raw = sessionStorage.getItem("onboarding_categories");
-        if (raw) categories = JSON.parse(raw) as CompanyCategory[];
-      } catch {
-        categories = [];
-      }
+    try {
+      const raw = typeof window !== "undefined"
+        ? sessionStorage.getItem("onboarding_categories")
+        : null;
+      const cats = raw ? (JSON.parse(raw) as CompanyCategory[]) : [];
+      return getTopicsForCategories(cats);
+    } catch {
+      return getTopicsForCategories([]);
     }
-    const resolved = getTopicsForCategories(categories);
-    setTopics(resolved);
-    // Initialize ratings with defaults
-    const initial: Record<string, number> = {};
-    resolved.forEach((t) => { initial[t.id] = t.defaultRating; });
-    setRatings(initial);
-  }, []);
+  });
+
+  const [ratings, setRatings] = useState<Record<string, number>>(() => {
+    try {
+      const raw = typeof window !== "undefined"
+        ? sessionStorage.getItem("onboarding_categories")
+        : null;
+      const cats = raw ? (JSON.parse(raw) as CompanyCategory[]) : [];
+      const resolved = getTopicsForCategories(cats);
+      const initial: Record<string, number> = {};
+      resolved.forEach((t) => { initial[t.id] = t.defaultRating; });
+      return initial;
+    } catch {
+      return {};
+    }
+  });
+
+  const [time, setTime] = useState("12 weeks");
 
   const handleRatingChange = (id: string, value: number) => {
     setRatings((prev) => ({ ...prev, [id]: value }));

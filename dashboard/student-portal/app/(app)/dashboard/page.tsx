@@ -21,7 +21,7 @@ export default function DashboardPage() {
         {/* Activity bar */}
         <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
           <Clock className="w-4 h-4" />
-          <span>Latest Activity: Completed "Two Sum" 2 hours ago</span>
+          <span>Latest Activity: Completed &quot;Two Sum&quot; 2 hours ago</span>
         </div>
 
         {/* Target Companies */}
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                 href="/practice"
                 className="bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shrink-0"
               >
-                Start Today's Practice
+                Start Today&apos;s Practice
               </Link>
             </div>
 

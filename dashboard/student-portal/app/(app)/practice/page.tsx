@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+import { Suspense, useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, CheckCircle, XCircle, Zap, ExternalLink, X } from "lucide-react";
 import {
@@ -13,14 +13,15 @@ const diffBadge = (d: string) =>
   d === "Easy"   ? "bg-green-50 text-green-700" :
   d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-gray-900 text-white";
 
-export default function PracticePage() {
+// ─── Inner component — uses useSearchParams, must be inside Suspense ──────────
+function PracticeContent() {
   const searchParams = useSearchParams();
 
-  // ── Filters — initialised from URL params so global search links work ──
-  const [search,    setSearch]    = useState(searchParams.get("search") ?? "");
-  const [company,   setCompany]   = useState(searchParams.get("company") ?? "All");
-  const [topic,     setTopic]     = useState(searchParams.get("topic") ?? "All");
-  const [roundType, setRoundType] = useState<RoundType | "">(
+  // Initialise filters from URL query params so links like /practice?company=google work
+  const [search,     setSearch]     = useState(searchParams.get("search")   ?? "");
+  const [company,    setCompany]    = useState(searchParams.get("company")  ?? "All");
+  const [topic,      setTopic]      = useState(searchParams.get("topic")    ?? "All");
+  const [roundType,  setRoundType]  = useState<RoundType | "">(
     (searchParams.get("roundType") as RoundType) ?? ""
   );
   const [difficulty, setDifficulty] = useState<Difficulty | "">(
@@ -28,22 +29,24 @@ export default function PracticePage() {
   );
   const [page, setPage] = useState(1);
 
-  // Reset page on filter change
+  // Reset pagination whenever filters change — this is the correct pattern for pagination resets
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setPage(1); }, [search, company, topic, roundType, difficulty]);
 
-  // ── Filtered + paginated questions ────────────────────────────────────
+  // ── Filtered + paginated results ──────────────────────────────────────────
   const filtered = useMemo(
     () => filterQuestions({ company, topic, difficulty, roundType, search }),
     [company, topic, difficulty, roundType, search]
   );
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated   = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const solved  = allQuestions.filter((_, i) => i % 5 === 0).length; // mock solved count
-  const pct     = Math.round((solved / allQuestions.length) * 100);
+  // Mock solved state — BACKEND TODO: derive from user.solved_ids
+  const solved = allQuestions.filter((_, i) => i % 5 === 0).length;
+  const pct    = Math.round((solved / allQuestions.length) * 100);
 
-  const hasFilters = search || company !== "All" || topic !== "All" || difficulty || roundType;
+  const hasFilters = !!(search || company !== "All" || topic !== "All" || difficulty || roundType);
 
   const clearFilters = () => {
     setSearch(""); setCompany("All"); setTopic("All");
@@ -52,7 +55,7 @@ export default function PracticePage() {
 
   return (
     <div>
-      {/* Header */}
+      {/* ── Page header ─────────────────────────────────────────────── */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Practice Questions</h1>
@@ -61,7 +64,7 @@ export default function PracticePage() {
           </p>
         </div>
 
-        {/* Progress badge */}
+        {/* Overall progress badge */}
         <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3">
           <div className="relative w-12 h-12">
             <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
@@ -83,7 +86,7 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* ── Filters ──────────────────────────────────────────────────── */}
       <div className="flex flex-wrap gap-3 mb-2">
         {/* Search */}
         <div className="relative flex-1 min-w-48">
@@ -130,8 +133,10 @@ export default function PracticePage() {
               onClick={() => setDifficulty(difficulty === d ? "" : d)}
               className={`px-4 py-2.5 text-sm font-medium transition-colors ${
                 difficulty === d
-                  ? d === "Easy"   ? "bg-green-500 text-white"
-                    : d === "Medium" ? "bg-amber-500 text-white"
+                  ? d === "Easy"
+                    ? "bg-green-500 text-white"
+                    : d === "Medium"
+                    ? "bg-amber-500 text-white"
                     : "bg-red-500 text-white"
                   : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
@@ -155,28 +160,28 @@ export default function PracticePage() {
         </select>
       </div>
 
-      {/* Active filter pills + clear */}
+      {/* ── Active filter pills ──────────────────────────────────────── */}
       {hasFilters && (
         <div className="flex flex-wrap items-center gap-2 mb-4 mt-1">
-          <span className="text-xs text-gray-500">Active filters:</span>
+          <span className="text-xs text-gray-500">Active:</span>
           {company !== "All" && (
             <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 rounded-full px-2.5 py-1">
-              {company} <button onClick={() => setCompany("All")}><X className="w-3 h-3" /></button>
+              {company} <button onClick={() => setCompany("All")} aria-label="Remove company filter"><X className="w-3 h-3" /></button>
             </span>
           )}
           {topic !== "All" && (
             <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 rounded-full px-2.5 py-1">
-              {topic} <button onClick={() => setTopic("All")}><X className="w-3 h-3" /></button>
+              {topic} <button onClick={() => setTopic("All")} aria-label="Remove topic filter"><X className="w-3 h-3" /></button>
             </span>
           )}
           {difficulty && (
             <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 rounded-full px-2.5 py-1">
-              {difficulty} <button onClick={() => setDifficulty("")}><X className="w-3 h-3" /></button>
+              {difficulty} <button onClick={() => setDifficulty("")} aria-label="Remove difficulty filter"><X className="w-3 h-3" /></button>
             </span>
           )}
           {roundType && (
             <span className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 rounded-full px-2.5 py-1">
-              {roundType} <button onClick={() => setRoundType("")}><X className="w-3 h-3" /></button>
+              {roundType} <button onClick={() => setRoundType("")} aria-label="Remove round filter"><X className="w-3 h-3" /></button>
             </span>
           )}
           <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 underline ml-1">
@@ -185,12 +190,14 @@ export default function PracticePage() {
         </div>
       )}
 
-      {/* Table */}
+      {/* ── Questions table ──────────────────────────────────────────── */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {/* Header row */}
+        {/* Table header */}
         <div className="grid grid-cols-[2fr_1fr_80px_1fr_70px_70px_40px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
           {["QUESTION", "COMPANY", "DIFF", "TOPIC / ROUND", "XP", "STATUS", ""].map((h) => (
-            <div key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</div>
+            <div key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              {h}
+            </div>
           ))}
         </div>
 
@@ -198,12 +205,15 @@ export default function PracticePage() {
         {paginated.length === 0 ? (
           <div className="text-center py-16 text-gray-400 text-sm">
             No questions match your filters.{" "}
-            <button onClick={clearFilters} className="text-blue-600 hover:underline">Clear filters</button>
+            <button onClick={clearFilters} className="text-blue-600 hover:underline">
+              Clear filters
+            </button>
           </div>
         ) : (
           paginated.map((q, idx) => {
-            const isSolved = idx % 5 === 0; // mock solved state — BACKEND TODO: user.solved_ids
-            const isWrong  = idx % 7 === 0 && !isSolved;
+            // BACKEND TODO: derive isSolved/isWrong from user.solved_ids
+            const isSolved       = idx % 5 === 0;
+            const isWrong        = idx % 7 === 0 && !isSolved;
             const primaryCompany = q.companies[0];
 
             return (
@@ -224,13 +234,17 @@ export default function PracticePage() {
 
                 {/* Difficulty */}
                 <div>
-                  <span className={`text-xs font-medium px-2 py-1 rounded ${diffBadge(q.diff)}`}>{q.diff}</span>
+                  <span className={`text-xs font-medium px-2 py-1 rounded ${diffBadge(q.diff)}`}>
+                    {q.diff}
+                  </span>
                 </div>
 
-                {/* Topic + Round */}
+                {/* Topic + Round type */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-xs text-gray-600">{q.topic}</span>
-                  <span className="text-[10px] bg-gray-100 text-gray-500 rounded px-1.5 py-0.5">{q.roundType}</span>
+                  <span className="text-[10px] bg-gray-100 text-gray-500 rounded px-1.5 py-0.5">
+                    {q.roundType}
+                  </span>
                 </div>
 
                 {/* XP */}
@@ -250,7 +264,7 @@ export default function PracticePage() {
                   )}
                 </div>
 
-                {/* External link */}
+                {/* LeetCode link — visible on row hover */}
                 {q.leetcodeUrl ? (
                   <a
                     href={q.leetcodeUrl}
@@ -283,7 +297,9 @@ export default function PracticePage() {
             >
               Previous
             </button>
-            <span className="text-xs text-gray-500">Page {page} of {totalPages}</span>
+            <span className="text-xs text-gray-500">
+              Page {page} of {totalPages}
+            </span>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
@@ -295,5 +311,39 @@ export default function PracticePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Loading skeleton shown while Suspense resolves ───────────────────────────
+function PracticeLoadingSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48 mb-2" />
+      <div className="h-4 bg-gray-100 rounded w-64 mb-6" />
+      <div className="flex gap-3 mb-6">
+        <div className="h-10 bg-gray-200 rounded flex-1" />
+        <div className="h-10 bg-gray-200 rounded w-32" />
+        <div className="h-10 bg-gray-200 rounded w-32" />
+        <div className="h-10 bg-gray-200 rounded w-36" />
+      </div>
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex gap-4 px-5 py-4 border-b border-gray-100 last:border-0">
+            <div className="flex-1 h-4 bg-gray-100 rounded" />
+            <div className="w-20 h-4 bg-gray-100 rounded" />
+            <div className="w-16 h-4 bg-gray-100 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Exported page — wraps content in Suspense (required for useSearchParams) ─
+export default function PracticePage() {
+  return (
+    <Suspense fallback={<PracticeLoadingSkeleton />}>
+      <PracticeContent />
+    </Suspense>
   );
 }

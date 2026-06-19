@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Gift, Zap, Search, X, Building2, Tag } from "lucide-react";
@@ -8,25 +8,19 @@ import { searchAll, type SearchResult } from "@/lib/mock-data";
 export default function Navbar() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [open, setOpen] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Run search whenever query changes
-  useEffect(() => {
-    const found = searchAll(query);
-    setResults(found);
-    setOpen(found.length > 0);
-    setSelectedIdx(-1);
-  }, [query]);
+  // Derive results directly from query — no useEffect needed
+  const results = useMemo(() => searchAll(query), [query]);
+  const open = results.length > 0 && query.trim().length > 0;
 
-  // Close on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
+        setSelectedIdx(-1);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -49,10 +43,10 @@ export default function Navbar() {
         if (target) {
           router.push(target.href);
           setQuery("");
-          setOpen(false);
+          setSelectedIdx(-1);
         }
       } else if (e.key === "Escape") {
-        setOpen(false);
+        setSelectedIdx(-1);
         inputRef.current?.blur();
       }
     },
@@ -62,7 +56,7 @@ export default function Navbar() {
   const handleSelect = (r: SearchResult) => {
     router.push(r.href);
     setQuery("");
-    setOpen(false);
+    setSelectedIdx(-1);
   };
 
   return (
@@ -81,18 +75,16 @@ export default function Navbar() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); setSelectedIdx(-1); }}
             onKeyDown={handleKeyDown}
-            onFocus={() => query && setOpen(true)}
             placeholder="Search company, topic, or question... (e.g. Google SDE-1)"
             className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
             aria-label="Global search"
             aria-autocomplete="list"
-            aria-expanded={open}
           />
           {query && (
             <button
-              onClick={() => { setQuery(""); setOpen(false); }}
+              onClick={() => { setQuery(""); setSelectedIdx(-1); }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               aria-label="Clear search"
             >
