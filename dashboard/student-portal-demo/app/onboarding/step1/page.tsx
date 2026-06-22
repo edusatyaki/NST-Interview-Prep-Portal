@@ -64,17 +64,22 @@ export default function Step1() {
         })}
       </div>
 
-      <div className="flex flex-col items-center gap-3 w-full max-w-md">
+      <div className="flex gap-3 w-full max-w-md">
+        <Link
+          href="/onboarding/step2"
+          className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center justify-center transition-colors"
+        >
+          Skip
+        </Link>
         <button
           onClick={() => selected.length > 0 && router.push("/onboarding/step2")}
           disabled={selected.length === 0}
-          className={`w-full py-3 rounded-lg text-sm font-semibold transition-colors ${
+          className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-colors ${
             selected.length > 0 ? "bg-gray-900 text-white hover:bg-gray-800" : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
           Continue
         </button>
-        <Link href="/onboarding/step2" className="text-sm text-gray-400 hover:text-gray-600">Skip for now</Link>
       </div>
     </div>
   );

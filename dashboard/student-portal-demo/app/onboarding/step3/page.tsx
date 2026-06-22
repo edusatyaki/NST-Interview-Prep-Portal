@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function SelfRatingPage() {
   const router = useRouter();
@@ -76,20 +75,21 @@ export default function SelfRatingPage() {
             </div>
           </div>
 
-          <button 
-            onClick={() => router.push("/onboarding/step4")}
-            className="w-full bg-black text-white rounded-lg py-4 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-gray-900 transition-colors"
-          >
-            Generate My Roadmap <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={() => router.push("/onboarding/step2")}
+              className="flex-1 border border-gray-300 text-gray-700 py-3.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={() => router.push("/onboarding/step4")}
+              className="flex-1 bg-black text-white rounded-lg py-3.5 text-sm font-semibold hover:bg-gray-900 transition-colors"
+            >
+              Continue
+            </button>
+          </div>
         </div>
-
-        <button 
-          onClick={() => router.push("/onboarding/step2")}
-          className="mx-auto flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to previous step
-        </button>
       </div>
     </div>
   );
