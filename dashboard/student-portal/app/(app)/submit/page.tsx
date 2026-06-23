@@ -1,170 +1,805 @@
 "use client";
 import { useState } from "react";
-import { Zap, Plus, X, CheckCircle, Clock, XCircle, Check } from "lucide-react";
+import Link from "next/link";
+import {
+  Zap, Plus, X, CheckCircle, Clock, XCircle, Check,
+  ChevronRight, ChevronDown, ChevronUp, Bookmark, ThumbsUp, Share2,
+  History, Code, Sparkles, Filter, ArrowUpDown
+} from "lucide-react";
 
-const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe"];
+// Mock logos matching Stitch and other company logos
+const logos: Record<string, string> = {
+  Google: "https://lh3.googleusercontent.com/aida-public/AB6AXuAL63YaQlCTo09Zku1cqyIzG3xEfrukR1_1YSdNH_fIn7sACmgE3gMisae0jNWnL0JspExkSlRVTEn2HMKGIqxn85PUIKwxBKN8PIULnXETMPCZ3kiSGLD3HcvmPl4ZTcxGe8HX8znSZPig8KoQPRjH7uk063p0IthnhZFKqsEXuZZbCZza_UjwhEBmarO-o6dTaP-w2tbIEds4hw0OKzoBlncRUzUs1J_7hawmfRX6tGd4NntS9WbWxKn94uAsOHqBgTSK4AnYHBhf",
+  Amazon: "https://lh3.googleusercontent.com/aida-public/AB6AXuCVGzGyzCRo-X8CIdRm1Aatp6lKupjl_G42KpNqwN5zGBZYFUckrUJ17QtrE4Dfgr4ma_wSEZGZWCY7mdk9QJ0VdFF0ONtcf9_iQW6bJ_s1UhlKZsKGPf4omDhc9dqKCR6m_iRD55aytexKO28l7quQXn_n1dxjJz1xdA8oWjMtfX9PD2uMdTCY5kpBQaRj7ni1lJnOOy2o1hn5DLo4VqT4Fij8WuIa61zMPXxkFMJaPNjPU4pxcrhhuq-9IZbksafPxtvW73ZZfu63",
+  Microsoft: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhuXLkHZDPcAy4XvMJPw67imDyTAjmHdup2A9VGo3-SRjKRfu_LOT4Iu7ZE8UtCS8alFYSfPYPemKC2iKUDzKFaF9UhAcyfMfNKlqXu51iUwdCu3yI8kpFeuCsqfyFapD9wJiP3KA_nd02x1I-6FgNYU9DJuT-3lX0OXstdNIGrZI8yxa9klG0shaBqrBUtHHZwI5hnOr_Ii2XWyquuKQDDZc-OWY3NBQ00ctZeG1-mboNBLU_r71miQbay8cIMfuG-mOwCjOOrzgG",
+  Oracle: "https://lh3.googleusercontent.com/aida-public/AB6AXuBt--Bjh49LYHRDqjL-sGCT5qd5lGsNgmCPazwoRF50sqWcFZYzOCwddHULAy0oVZ-UqkPpMZt1b0orruHo7HKjB2d23i5n4wEN_QpRDgUNRoS21qLVtOiraT9qQffLakfduOiyK18liwk04Qdg6uyKocz4Q_ujX9gA-AgBAeXMOmiWDcRDI87XWSHJCDCgHI7GpqfXQA5meH5HaxFU0YaWxYONZZmKSPpJlIu0GqYVfOujjdy-mGD8-DoP9qrSz7w887D2Sy6DDkBC",
+  "Goldman Sachs": "https://lh3.googleusercontent.com/aida-public/AB6AXuDdcYKnUW5FRfN85A6hcvfcQc4YWouCSzoIAHEXhesOXOl5lBcmldkCmnI5E8AZ6keWKUVO_VvARuVV-5VfLSnljZfksDSx1ODaI6Diuik2ZhzRBlZ5TyHWJP8dcOl_d6oHMKDtcmfh6vyry8FUrSEzjfIkC4m27wq8eGPJhyNIDH1uG98va-z_rkEd3UXd6AgtUvZHOR1VymVKgYhW04Ci4pLqJFAIADg58zfR_O7BZF9o6LW_yxuUjGTJRvAGOtIvrAHmQwzzHHW9",
+  Uber: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_9GpoBxbsK9qtZSMXC828cF1TybC934juVeq1JZMNymJ8sCTfx3EU9IsvTQ7iCPHVnaXm-Ji0f1kOXZbiL_Qe64l8GA6CP0ncofY_jXfmMOVf6cuylumvNf95IFA7VpUGKo93yS9tKpKtMMEZ-Ed4heMDq7YmD9QDteFo2_-wwlXbGiGgTUE0RLE78OqOuDOLHRLI90GHxnlqcJATDF3-L_EDoZWmZdVZ0EWwyjZyJqwF8lhIQfL0QqI3YELn94SPrUsiHQOZcJJ6"
+};
+
+const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe", "Oracle", "Goldman Sachs", "Uber"];
+
+interface InterviewRound {
+  roundNumber: number;
+  type: string;
+  topics: string[];
+  description: string;
+  cleared: boolean;
+}
+
+interface Experience {
+  id: number;
+  company: string;
+  logoUrl: string;
+  role: string;
+  roundsCount: number;
+  problemsCount: number;
+  outcome: string; // "offer" | "rejected" | "waiting"
+  difficulty: "Easy" | "Medium" | "Hard";
+  workType: string;
+  experience: string;
+  author: string;
+  authorRole: string;
+  postedAgo: string;
+  upvotes: number;
+  hasUpvoted: boolean;
+  hasBookmarked: boolean;
+  rounds: InterviewRound[];
+}
+
+const initialExperiences: Experience[] = [
+  {
+    id: 1,
+    company: "Google",
+    logoUrl: logos.Google,
+    role: "Software Engineering Intern",
+    roundsCount: 3,
+    problemsCount: 3,
+    outcome: "offer",
+    difficulty: "Medium",
+    workType: "Remote",
+    experience: "Google interviews are fast-paced and time-bound, so it is crucial to practice with that environment in mind. Don't underestimate the importance of edge case discussions, dry runs, and being able to explain your solution with confidence.",
+    author: "Agrawal",
+    authorRole: "Final-year student",
+    postedAgo: "380 days ago",
+    upvotes: 389,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "DSA Coding", topics: ["Arrays", "Sliding Window"], description: "Asked 2 medium coding questions on array manipulation and sliding window. The interviewer focused heavily on code quality and optimizing space complexity.", cleared: true },
+      { roundNumber: 2, type: "DSA Coding", topics: ["Dynamic Programming", "Trees"], description: "Asked to optimize a 2D dynamic programming problem on grid pathfinding. Then a follow-up on representing the grid as a graph/tree.", cleared: true },
+      { roundNumber: 3, type: "HR / Googlyness", topics: ["Behavioral", "Googlyness"], description: "Standard behavioral questions using STAR method. Focused on conflict resolution, leadership traits, and team alignment.", cleared: true }
+    ]
+  },
+  {
+    id: 2,
+    company: "Amazon",
+    logoUrl: logos.Amazon,
+    role: "SDE Intern (6M)",
+    roundsCount: 1,
+    problemsCount: 2,
+    outcome: "offer",
+    difficulty: "Medium",
+    workType: "On-site",
+    experience: "The SDE Intern process at Amazon was direct. Mostly focused on core data structures and standard Amazon Leadership Principles. Make sure you tie every behavioral answer back to leadership principles.",
+    author: "Verma",
+    authorRole: "Pre-final year student",
+    postedAgo: "12 days ago",
+    upvotes: 237,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "DSA Coding", topics: ["Heaps", "Graphs"], description: "Asked to implement a min-heap based priority queue for task scheduling. The second question was finding shortest path in a weighted graph.", cleared: true }
+    ]
+  },
+  {
+    id: 3,
+    company: "Microsoft",
+    logoUrl: logos.Microsoft,
+    role: "SDE-1",
+    roundsCount: 4,
+    problemsCount: 5,
+    outcome: "offer",
+    difficulty: "Hard",
+    workType: "Hybrid",
+    experience: "Focused heavily on operating systems, system architecture, and low-level data structures. They expect clean code and a deep understanding of memory management. Be prepared for dry-running code.",
+    author: "Ranjan",
+    authorRole: "Alumnus (2025)",
+    postedAgo: "30 days ago",
+    upvotes: 184,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "Online Assessment", topics: ["Algorithms", "Bit Manipulation"], description: "Three tasks focusing on bit-level operations and sorting algorithms. 90 minutes limit.", cleared: true },
+      { roundNumber: 2, type: "DSA Coding", topics: ["Linked Lists", "Trees"], description: "Standard MS coding round: reverse nodes in k-group and check if binary tree is BST.", cleared: true },
+      { roundNumber: 3, type: "System Design", topics: ["LLD", "Design Patterns"], description: "Designed a parking lot system. Interviewer checked object-oriented design and SOLID principles.", cleared: true },
+      { roundNumber: 4, type: "HR", topics: ["Resume Review", "Behavioral"], description: "Detailed walkthrough of past internship projects and questions about work ethic and collaboration.", cleared: true }
+    ]
+  }
+];
+
+const popularCompanies = [
+  { name: "Amazon", slug: "amazon", logo: logos.Amazon, type: "Product Based", count: 51 },
+  { name: "Microsoft", slug: "microsoft", logo: logos.Microsoft, type: "Product Based", count: 30 },
+  { name: "Google", slug: "google", logo: logos.Google, type: "Product Based", count: 21 },
+  { name: "Oracle", slug: "oracle", logo: logos.Oracle, type: "Product Based", count: 17 },
+  { name: "Goldman Sachs", slug: "goldman-sachs", logo: logos["Goldman Sachs"], type: "Service Based", count: 12 },
+  { name: "Uber", slug: "uber", logo: logos.Uber, type: "Product Based", count: 11 }
+];
 
 export default function SubmitPage() {
-  const [outcome, setOutcome] = useState<string | null>(null);
-  const [stars, setStars] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
-  const [tags, setTags] = useState(["Arrays", "Dynamic Programming"]);
-  const [tagInput, setTagInput] = useState("");
+  const [view, setView] = useState<"feed" | "submit">("feed");
+  const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // Filters state
+  const [filterDifficulty, setFilterDifficulty] = useState<string>("All");
+  const [filterCompany, setFilterCompany] = useState<string>("All");
+  const [sortBy, setSortBy] = useState<string>("Most Upvoted");
+
+  // Share link toast state
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+
+  // Submit Form States
+  const [formCompany, setFormCompany] = useState("Google");
+  const [formRole, setFormRole] = useState("SDE-1");
+  const [formDate, setFormDate] = useState("");
+  const [formOutcome, setFormOutcome] = useState("offer");
+  const [formStars, setFormStars] = useState(3);
+  const [formExperienceText, setFormExperienceText] = useState("");
+  const [formTipsText, setFormTipsText] = useState("");
+  const [formRoundsCount, setFormRoundsCount] = useState(3);
+  const [formProblemsCount, setFormProblemsCount] = useState(2);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formTags, setFormTags] = useState<string[]>(["Arrays", "Dynamic Programming"]);
+  const [formTagInput, setFormTagInput] = useState("");
+  const [formRoundType, setFormRoundType] = useState("DSA Coding");
 
   const addTag = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && tagInput.trim()) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
+    if (e.key === "Enter" && formTagInput.trim()) {
+      e.preventDefault();
+      if (!formTags.includes(formTagInput.trim())) {
+        setFormTags([...formTags, formTagInput.trim()]);
+      }
+      setFormTagInput("");
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="max-w-xl mx-auto text-center py-20">
-        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank you for contributing!</h2>
-        <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-6 py-3 text-amber-800 font-bold text-lg mt-4 mb-4">
-          <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-          +50 XP Earned!
+  const handleUpvote = (id: number) => {
+    setExperiences((prev) =>
+      prev.map((exp) => {
+        if (exp.id === id) {
+          return {
+            ...exp,
+            upvotes: exp.hasUpvoted ? exp.upvotes - 1 : exp.upvotes + 1,
+            hasUpvoted: !exp.hasUpvoted,
+          };
+        }
+        return exp;
+      })
+    );
+  };
+
+  const handleBookmark = (id: number) => {
+    setExperiences((prev) =>
+      prev.map((exp) => {
+        if (exp.id === id) {
+          return {
+            ...exp,
+            hasBookmarked: !exp.hasBookmarked,
+          };
+        }
+        return exp;
+      })
+    );
+  };
+
+  const handleShare = (id: number, company: string) => {
+    const shareUrl = `${window.location.origin}/submit?id=${id}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setToastMessage(`Link copied for ${company} experience!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
+    });
+  };
+
+  const clearForm = () => {
+    setFormCompany("Google");
+    setFormRole("SDE-1");
+    setFormDate("");
+    setFormOutcome("offer");
+    setFormStars(3);
+    setFormExperienceText("");
+    setFormTipsText("");
+    setFormRoundsCount(3);
+    setFormProblemsCount(2);
+    setFormTags(["Arrays", "Dynamic Programming"]);
+    setFormTagInput("");
+    setFormRoundType("DSA Coding");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formExperienceText.trim()) {
+      alert("Please describe your interview experience.");
+      return;
+    }
+
+    const newExp: Experience = {
+      id: Date.now(),
+      company: formCompany,
+      logoUrl: logos[formCompany] || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=60",
+      role: formRole,
+      roundsCount: formRoundsCount,
+      problemsCount: formProblemsCount,
+      outcome: formOutcome,
+      difficulty: formStars <= 2 ? "Easy" : formStars <= 4 ? "Medium" : "Hard",
+      workType: "Hybrid",
+      experience: formExperienceText,
+      author: "You (Student)",
+      authorRole: "NST Student",
+      postedAgo: "Just now",
+      upvotes: 0,
+      hasUpvoted: false,
+      hasBookmarked: false,
+      rounds: [
+        {
+          roundNumber: 1,
+          type: formRoundType,
+          topics: formTags,
+          description: formExperienceText + (formTipsText ? `\n\nTips: ${formTipsText}` : ""),
+          cleared: formOutcome === "offer"
+        }
+      ]
+    };
+
+    setExperiences([newExp, ...experiences]);
+    setFormSubmitted(true);
+  };
+
+  // Filter & Sort Logic
+  const filteredExperiences = experiences
+    .filter((exp) => {
+      if (filterDifficulty !== "All" && exp.difficulty !== filterDifficulty) return false;
+      if (filterCompany !== "All" && exp.company !== filterCompany) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "Most Upvoted") {
+        return b.upvotes - a.upvotes;
+      } else {
+        return b.id - a.id;
+      }
+    });
+
+  if (view === "submit") {
+    if (formSubmitted) {
+      return (
+        <div className="max-w-xl mx-auto text-center py-20 bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank you for contributing!</h2>
+          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-6 py-3 text-amber-800 font-bold text-lg mt-4 mb-4 shadow-sm">
+            <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+            +50 XP Earned!
+          </div>
+          <p className="text-gray-500 text-sm">Your experience will help future NST students prepare better.</p>
+          <div className="flex justify-center gap-3 mt-8">
+            <button
+              onClick={() => {
+                setFormSubmitted(false);
+                setView("feed");
+                clearForm();
+              }}
+              className="border border-gray-300 text-gray-700 text-sm px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              Back to Feed
+            </button>
+            <button
+              onClick={() => {
+                setFormSubmitted(false);
+                clearForm();
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-5 py-2.5 rounded-lg transition-colors font-medium"
+            >
+              Submit Another
+            </button>
+          </div>
         </div>
-        <p className="text-gray-500 text-sm">Your experience will help future NST students prepare better.</p>
-        <button onClick={() => setSubmitted(false)} className="mt-6 border border-gray-300 text-gray-700 text-sm px-5 py-2 rounded-lg hover:bg-gray-50">
-          Submit Another
+      );
+    }
+
+    return (
+      <div className="max-w-3xl">
+        <button
+          onClick={() => {
+            setView("feed");
+            clearForm();
+          }}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-5 font-medium"
+        >
+          ← Back to Experiences Feed
         </button>
+
+        <h1 className="text-2xl font-semibold text-gray-900">Share Your Interview Experience</h1>
+        <p className="text-sm text-gray-500 mt-1 mb-5">Help your juniors prepare better. Every submission makes PlacePrep smarter.</p>
+
+        {/* XP Banner */}
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
+          <Zap className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
+          <span className="text-amber-800 font-medium text-sm">Earn 50 XP for submitting your interview experience this week!</span>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-7 space-y-5 shadow-sm">
+          {/* Row 1 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
+              <select
+                value={formCompany}
+                onChange={(e) => setFormCompany(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role / Level</label>
+              <select
+                value={formRole}
+                onChange={(e) => setFormRole(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="SDE-1">SDE-1</option>
+                <option value="SDE-2">SDE-2</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Frontend Engineer">Frontend Engineer</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Row 2 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Interview Date</label>
+              <input
+                type="date"
+                value={formDate}
+                onChange={(e) => setFormDate(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Outcome</label>
+              <div className="flex gap-2">
+                {[
+                  { key: "offer", label: "Offer", icon: CheckCircle, activeClass: "bg-green-600 text-white border-green-600" },
+                  { key: "rejected", label: "Rejected", icon: XCircle, activeClass: "bg-red-600 text-white border-red-600" },
+                  { key: "waiting", label: "Waiting", icon: Clock, activeClass: "bg-amber-500 text-white border-amber-500" },
+                ].map(({ key, label, icon: Icon, activeClass }) => (
+                  <button
+                    type="button"
+                    key={key}
+                    onClick={() => setFormOutcome(key)}
+                    className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-all flex items-center justify-center gap-1.5 ${ formOutcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />{label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Stars */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Overall Difficulty</label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <button
+                  type="button"
+                  key={s}
+                  onClick={() => setFormStars(s)}
+                  className={`text-2xl ${s <= formStars ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Rounds Configuration */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Rounds Conducted</label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={formRoundsCount}
+                onChange={(e) => setFormRoundsCount(Number(e.target.value))}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Problems Asked</label>
+              <input
+                type="number"
+                min={0}
+                max={20}
+                value={formProblemsCount}
+                onChange={(e) => setFormProblemsCount(Number(e.target.value))}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Round detail mockup */}
+          <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500">PRIMARY ROUND</span>
+              <select
+                value={formRoundType}
+                onChange={(e) => setFormRoundType(e.target.value)}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Online Assessment">Online Assessment</option>
+                <option value="DSA Coding">DSA Coding</option>
+                <option value="System Design">System Design</option>
+                <option value="HR">HR</option>
+                <option value="Managerial">Managerial</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1.5 block">Topics Asked</label>
+              <div className="flex flex-wrap gap-2 border border-gray-200 bg-white rounded-lg p-2 min-h-[42px]">
+                {formTags.map((t) => (
+                  <span key={t} className="flex items-center gap-1 bg-blue-50 text-blue-700 text-xs rounded px-2 py-1">
+                    {t}
+                    <button type="button" onClick={() => setFormTags(formTags.filter((x) => x !== t))}>
+                      <X className="w-3 h-3 text-blue-500 hover:text-blue-700" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  value={formTagInput}
+                  onChange={(e) => setFormTagInput(e.target.value)}
+                  onKeyDown={addTag}
+                  placeholder="Type topic + Enter"
+                  className="flex-1 min-w-[120px] text-xs outline-none bg-transparent"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Experience Description */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Your Interview Experience</label>
+            <textarea
+              rows={4}
+              required
+              value={formExperienceText}
+              onChange={(e) => setFormExperienceText(e.target.value)}
+              placeholder="What questions were asked? How did you approach them? What was the difficulty level?"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          {/* Tips */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Any surprises or tips?</label>
+            <textarea
+              rows={3}
+              value={formTipsText}
+              onChange={(e) => setFormTipsText(e.target.value)}
+              placeholder="What wasn't covered in any prep guide? What surprised you?"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            Submit Experience
+          </button>
+        </form>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl">
-      <h1 className="text-2xl font-semibold text-gray-900">Share Your Interview Experience</h1>
-      <p className="text-sm text-gray-500 mt-1 mb-5">Help your juniors prepare better. Every submission makes PlacePrep smarter.</p>
-
-      {/* XP Banner */}
-      <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-        <Zap className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
-        <span className="text-amber-800 font-medium text-sm">Earn 50 XP for submitting your interview experience this week!</span>
-      </div>
-
-      {/* Form */}
-      <div className="bg-white border border-gray-200 rounded-xl p-7 space-y-5">
-        {/* Row 1 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
-            <select className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {companies.map((c) => <option key={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role / Level</label>
-            <select className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option>SDE-1</option><option>SDE-2</option><option>Data Analyst</option><option>Frontend Engineer</option><option>Other</option>
-            </select>
-          </div>
+    <div className="space-y-10 relative">
+      {/* Toast Feedback Notification */}
+      {showToast && (
+        <div className="fixed bottom-5 right-5 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 border border-gray-800 text-sm transition-opacity duration-300">
+          <CheckCircle className="w-4 h-4 text-green-400" />
+          <span>{toastMessage}</span>
         </div>
+      )}
 
-        {/* Row 2 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Interview Date</label>
-            <input type="date" className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Outcome</label>
-            <div className="flex gap-2">
-              {[
-                { key: "offer", label: "Offer", icon: CheckCircle, activeClass: "bg-green-600 text-white border-green-600" },
-                { key: "rejected", label: "Rejected", icon: XCircle, activeClass: "bg-red-600 text-white border-red-600" },
-                { key: "waiting", label: "Waiting", icon: Clock, activeClass: "bg-amber-500 text-white border-amber-500" },
-              ].map(({ key, label, icon: Icon, activeClass }) => (
-                <button
-                  key={key}
-                  onClick={() => setOutcome(key)}
-                  className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-colors flex items-center justify-center gap-1.5 ${ outcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
-                >
-                  <Icon className="w-3.5 h-3.5" />{label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Stars */}
+      {/* Hero section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <label className="text-sm font-medium text-gray-700 mb-2 block">Overall Difficulty</label>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <button key={s} onClick={() => setStars(s)} className={`text-2xl ${s <= stars ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}>★</button>
-            ))}
-          </div>
+          <h2 className="text-[32px] leading-tight font-extrabold text-gray-900">
+            Ace your interview with <span className="text-orange-500">Interview Experience</span>
+          </h2>
+          <p className="text-gray-500 text-lg mt-2 font-normal">Turn your placement story into someone's prep guide.</p>
         </div>
-
-        {/* Round */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium text-gray-700">Interview Rounds</label>
-            <button className="flex items-center gap-1.5 text-sm text-blue-600 border border-dashed border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Add Round
-            </button>
-          </div>
-          <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500">ROUND 1</span>
-              <select className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Online Assessment</option><option>DSA Coding</option><option>System Design</option><option>HR</option><option>Managerial</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Topics Asked</label>
-              <div className="flex flex-wrap gap-2 border border-gray-200 rounded-lg p-2 min-h-[42px]">
-                {tags.map((t) => (
-                  <span key={t} className="flex items-center gap-1 bg-blue-50 text-blue-700 text-xs rounded px-2 py-1">
-                    {t} <button onClick={() => setTags(tags.filter((x) => x !== t))}><X className="w-3 h-3" /></button>
-                  </span>
-                ))}
-                <input
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={addTag}
-                  placeholder="Type topic + Enter"
-                  className="flex-1 min-w-20 text-xs outline-none"
-                />
-              </div>
-            </div>
-            <textarea
-              rows={2}
-              placeholder="What specific questions were asked in this round?"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-            <div className="flex gap-2">
-              <button className="text-xs font-medium bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg flex items-center gap-1">
-                <Check className="w-3.5 h-3.5" /> Cleared
-              </button>
-              <button className="text-xs font-medium bg-white text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1">
-                <XCircle className="w-3.5 h-3.5" /> Not Cleared
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Tips */}
-        <div>
-          <label className="text-sm font-medium text-gray-700 mb-1.5 block">Any surprises or tips?</label>
-          <textarea
-            rows={3}
-            placeholder="What wasn't covered in any prep guide? What surprised you?"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          />
-        </div>
-
         <button
-          onClick={() => setSubmitted(true)}
-          className="w-full bg-gray-900 text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
+          onClick={() => setView("submit")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all self-start flex items-center gap-1.5 shrink-0"
         >
-          Submit Experience
+          <Sparkles className="w-4 h-4" /> Share Yours
         </button>
       </div>
+
+      {/* Popular Companies Grid */}
+      <section>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            Popular Companies
+          </h3>
+          <Link
+            href="/companies"
+            className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-semibold transition-colors"
+          >
+            View all <ChevronRight className="w-4 h-4 ml-0.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {popularCompanies.map((c) => (
+            <div
+              key={c.name}
+              onClick={() => setFilterCompany(c.name)}
+              className={`bg-white border p-4 rounded-xl flex flex-col items-center text-center group cursor-pointer transition-all hover:-translate-y-0.5 ${
+                filterCompany === c.name
+                  ? "border-blue-600 ring-2 ring-blue-500/20 shadow-md"
+                  : "border-gray-200 hover:shadow-md"
+              }`}
+            >
+              <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center p-2 mb-3 shadow-sm">
+                <img alt={c.name} className="w-full h-full object-contain animate-fadeIn" src={c.logo} />
+              </div>
+              <p className="font-bold text-gray-900 text-sm">{c.name}</p>
+              <span className="text-[9px] uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full mt-2 font-bold shrink-0">
+                {c.type}
+              </span>
+              <p className="text-[11px] text-gray-500 mt-2 font-medium">{c.count} Experiences</p>
+
+              {/* View Intel details */}
+              <Link
+                href={`/companies/${c.slug}`}
+                onClick={(e) => e.stopPropagation()}
+                className="mt-3 text-[10px] font-semibold text-blue-600 hover:underline inline-flex items-center"
+              >
+                View Intel →
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Experience Feed list */}
+      <section className="max-w-5xl">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-gray-900">Experiences Feed</h3>
+            {/* Active Company Filter indicator */}
+            {filterCompany !== "All" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                Company: {filterCompany}
+                <button onClick={() => setFilterCompany("All")} className="focus:outline-none">
+                  <X className="w-3 h-3 hover:text-blue-900" />
+                </button>
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Filter by Difficulty */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-3.5 h-3.5 text-gray-400" />
+              <select
+                value={filterDifficulty}
+                onChange={(e) => setFilterDifficulty(e.target.value)}
+                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="All">All Difficulties</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+
+            {/* Filter by Company */}
+            <div className="flex items-center gap-2">
+              <select
+                value={filterCompany}
+                onChange={(e) => setFilterCompany(e.target.value)}
+                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="All">All Companies</option>
+                {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            {/* Sort by */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="w-3.5 h-3.5 text-gray-400" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="Most Upvoted">Most Upvoted</option>
+                <option value="Newest">Newest</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {filteredExperiences.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center shadow-sm">
+            <p className="text-gray-500 font-medium mb-2">No experiences match your filters.</p>
+            <button
+              onClick={() => {
+                setFilterCompany("All");
+                setFilterDifficulty("All");
+              }}
+              className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredExperiences.map((exp) => (
+              <div
+                key={exp.id}
+                className="bg-white border border-gray-200 rounded-xl p-6 relative group hover:shadow-md transition-shadow cursor-default"
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-4">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 border border-gray-200 rounded-lg flex items-center justify-center p-2 shadow-sm bg-white shrink-0">
+                      <img alt={exp.company} className="w-full h-full object-contain" src={exp.logoUrl} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 text-base flex flex-wrap items-center gap-1.5">
+                        {exp.company}
+                        <span className="font-normal text-gray-300">|</span>
+                        <span className="text-gray-800 text-sm font-medium">{exp.role}</span>
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-4 mt-1 text-xs text-gray-500 font-medium">
+                        <div className="flex items-center gap-1">
+                          <History className="w-3.5 h-3.5 text-gray-400" />
+                          {exp.roundsCount} Rounds
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Code className="w-3.5 h-3.5 text-gray-400" />
+                          {exp.problemsCount} Problems
+                        </div>
+                        <span className="text-green-600 font-bold ml-1">Selected</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    {/* Upvote Button */}
+                    <button
+                      onClick={() => handleUpvote(exp.id)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
+                        exp.hasUpvoted
+                          ? "bg-blue-50 text-blue-600 border-blue-200"
+                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <ThumbsUp className={`w-3.5 h-3.5 ${exp.hasUpvoted ? "fill-blue-600 animate-pulse" : ""}`} />
+                      {exp.upvotes}
+                    </button>
+
+                    {/* Bookmark Button */}
+                    <button
+                      onClick={() => handleBookmark(exp.id)}
+                      className={`p-2 rounded-full border transition-all ${
+                        exp.hasBookmarked
+                          ? "bg-blue-50 text-blue-600 border-blue-200"
+                          : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Bookmark className={`w-3.5 h-3.5 ${exp.hasBookmarked ? "fill-blue-600" : ""}`} />
+                    </button>
+
+                    {/* Share Button */}
+                    <button
+                      onClick={() => handleShare(exp.id, exp.company)}
+                      className="p-2 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <span className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full ${
+                    exp.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border border-green-200' :
+                    exp.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                    'bg-red-50 text-red-700 border border-red-200'
+                  }`}>
+                    {exp.difficulty}
+                  </span>
+                  <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
+                    {exp.workType}
+                  </span>
+                  <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
+                    0-1 years
+                  </span>
+                </div>
+
+                <div className="mt-5 border-l-4 border-orange-500 pl-4 bg-gray-50/50 py-3 pr-3 rounded-r-lg">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Experience Highlights</h5>
+                  <p className="text-sm text-gray-700 leading-relaxed font-normal">
+                    {exp.experience}
+                  </p>
+                </div>
+
+                {/* Inline Accordion for Detailed Rounds */}
+                {expandedId === exp.id && (
+                  <div className="mt-5 pt-5 border-t border-gray-100 space-y-3">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-2">Round Details</h5>
+                    <div className="space-y-3">
+                      {exp.rounds.map((round) => (
+                        <div key={round.roundNumber} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                                Round {round.roundNumber}
+                              </span>
+                              <span className="text-xs font-bold text-gray-800">{round.type}</span>
+                            </div>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${round.cleared ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                              {round.cleared ? 'Cleared' : 'Not Cleared'}
+                            </span>
+                          </div>
+                          {round.topics && round.topics.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-2">
+                              {round.topics.map((t) => (
+                                <span key={t} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-600 leading-relaxed">{round.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-gray-800">-{exp.author}</span>
+                    <span>{exp.authorRole}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)}
+                      className="text-blue-600 hover:text-blue-700 font-bold hover:underline inline-flex items-center gap-0.5"
+                    >
+                      {expandedId === exp.id ? "Hide Details" : "View Details"}
+                      {expandedId === exp.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                    <span>Posted on: {exp.postedAgo}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
