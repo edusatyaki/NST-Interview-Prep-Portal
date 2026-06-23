@@ -13,7 +13,7 @@ const navItems = [
   { icon: Code2, label: "Practice", href: "/practice" },
   { icon: TrendingUp, label: "My Progress", href: "/progress" },
   { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
-  { icon: Send, label: "Submit Experience", href: "/submit" },
+  { icon: Send, label: "Interview Experience", href: "/submit" },
   { icon: Bot, label: "Ask Athena", href: "/athena" },
 ];
 
