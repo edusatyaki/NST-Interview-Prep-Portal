@@ -29,7 +29,7 @@ export default function LandingPage() {
             Crack Your Dream<br />Company Interview
           </h1>
           <p className="text-gray-600 text-lg leading-relaxed mb-8">
-            India's first structured, data-driven interview prep portal built exclusively
+            India&apos;s first structured, data-driven interview prep portal built exclusively
             for NST students to master technical and behavioral rounds.
           </p>
           <div className="flex items-center gap-3">
@@ -102,7 +102,7 @@ export default function LandingPage() {
           Everything you need to succeed
         </h2>
         <p className="text-gray-500 text-center mb-12 max-w-xl mx-auto">
-          Stop guessing what they'll ask. We've mapped out the exact requirements, questions,
+          Stop guessing what they&apos;ll ask. We&apos;ve mapped out the exact requirements, questions,
           and roadmaps for top tech companies.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -132,7 +132,7 @@ export default function LandingPage() {
             </div>
             <h3 className="font-semibold text-gray-900 mb-2">Curriculum Gap</h3>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Identify exactly what isn't taught in standard courses but is highly expected
+              Identify exactly what isn&apos;t taught in standard courses but is highly expected
               by elite engineering teams.
             </p>
           </div>

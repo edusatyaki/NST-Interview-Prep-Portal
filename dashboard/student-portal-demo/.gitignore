@@ -50,9 +50,9 @@ next-env.d.ts
 *.sln
 *.sw?
 
-# Keep local-only design reference folder out of Git
+# local-only design reference folders
 stitch_placeprep_nst_interview_intelligence_portal/
 
-# Keep local AI agent configuration files out of Git
+# local-only AI agent configuration files
 AGENTS.md
 CLAUDE.md
