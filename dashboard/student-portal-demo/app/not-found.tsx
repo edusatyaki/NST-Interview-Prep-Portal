@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="text-8xl font-black text-gray-200 mb-6">404</div>
       <h1 className="text-2xl font-bold text-gray-900 mb-3">Page not found</h1>
       <p className="text-gray-500 text-sm mb-8 max-w-sm">
-        Oops! The page you're looking for doesn't exist or has been moved.
+        Oops! The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </p>
       <div className="flex gap-3">
         <Link href="/dashboard" className="bg-gray-900 text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">

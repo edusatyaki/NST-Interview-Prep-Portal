@@ -1,144 +1,310 @@
 "use client";
-import { useState } from "react";
-import { Search, CheckCircle, XCircle } from "lucide-react";
+import { Suspense, useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, ExternalLink, Search, X } from "lucide-react";
+import {
+  practiceCategories,
+  filterQuestions,
+  allTopics,
+  allCompanySlugs,
+  type PracticeCategory,
+  type Difficulty,
+} from "@/lib/mock-data";
 
-const questions = [
-  { id: 1, title: "Reverse a Linked List", company: "Google", companyColor: "bg-blue-600", topic: "Linked List", diff: "Easy", xp: 10, status: "solved" },
-  { id: 2, title: "LRU Cache Implementation", company: "Amazon", companyColor: "bg-orange-500", topic: "Design", diff: "Medium", xp: 25, status: "wrong" },
-  { id: 3, title: "Merge K Sorted Lists", company: "Microsoft", companyColor: "bg-teal-600", topic: "Heaps", diff: "Hard", xp: 40, status: null },
-  { id: 4, title: "Valid Parentheses", company: "Meta", companyColor: "bg-blue-700", topic: "Stacks", diff: "Easy", xp: 10, status: null },
-  { id: 5, title: "Find Median from Data Stream", company: "Apple", companyColor: "bg-gray-600", topic: "Heaps", diff: "Hard", xp: 40, status: "solved" },
-  { id: 6, title: "Binary Tree Level Order Traversal", company: "Netflix", companyColor: "bg-red-600", topic: "Trees", diff: "Medium", xp: 25, status: null },
-  { id: 7, title: "Two Sum", company: "Google", companyColor: "bg-blue-600", topic: "Arrays", diff: "Easy", xp: 10, status: "solved" },
-  { id: 8, title: "House Robber", company: "Flipkart", companyColor: "bg-blue-500", topic: "DP", diff: "Medium", xp: 20, status: "wrong" },
-  { id: 9, title: "Number of Islands", company: "Google", companyColor: "bg-blue-600", topic: "Graphs", diff: "Medium", xp: 20, status: null },
-  { id: 10, title: "Word Break", company: "Flipkart", companyColor: "bg-blue-500", topic: "DP", diff: "Medium", xp: 20, status: null },
-];
-
+// ── Difficulty badge colours ─────────────────────────
 const diffBadge = (d: string) =>
-  d === "Easy" ? "bg-green-50 text-green-700" :
-  d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-gray-900 text-white";
+  d === "Easy"   ? "bg-green-50 text-green-700 border border-green-200" :
+  d === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                   "bg-red-50 text-red-600 border border-red-200";
 
-export default function PracticePage() {
-  const [activeDiff, setActiveDiff] = useState<string | null>(null);
+// ── Category card component ──────────────────────────
+function CategoryCard({
+  cat,
+  active,
+  onClick,
+}: {
+  cat: PracticeCategory;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 hover:shadow-md group ${
+        active
+          ? "border-blue-500 bg-blue-50 shadow-md"
+          : `${cat.color} ${cat.borderColor} hover:border-blue-300`
+      }`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <span className="text-2xl">{cat.emoji}</span>
+        {active && (
+          <span className="text-[10px] font-bold text-blue-600 bg-blue-100 rounded-full px-2 py-0.5">
+            ACTIVE
+          </span>
+        )}
+      </div>
+      <div className={`font-bold text-base mb-1 ${active ? "text-blue-700" : cat.textColor}`}>
+        {cat.label}
+      </div>
+      <div className="text-xs text-gray-500 mb-3 line-clamp-2">{cat.description}</div>
+      <div className={`text-xs font-semibold ${active ? "text-blue-600" : cat.textColor}`}>
+        {cat.totalQuestions.toLocaleString()}+ questions
+      </div>
+    </button>
+  );
+}
+
+// ── Main practice content (needs Suspense for useSearchParams) ──
+function PracticeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Which category is active (from URL or selection)
+  const [activeCategory, setActiveCategory] = useState<string | null>(
+    searchParams.get("category") ?? null
+  );
+
+  // Filters — only 3 as per design
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const [company, setCompany] = useState(searchParams.get("company") ?? "");
+  const [topic, setTopic] = useState(searchParams.get("topic") ?? "");
+  const [difficulty, setDifficulty] = useState<Difficulty | "">(
+    (searchParams.get("difficulty") as Difficulty) ?? ""
+  );
+
+  // Sync URL when category changes
+  useEffect(() => {
+    if (activeCategory) {
+      const params = new URLSearchParams();
+      params.set("category", activeCategory);
+      if (search) params.set("search", search);
+      if (company) params.set("company", company);
+      if (topic) params.set("topic", topic);
+      if (difficulty) params.set("difficulty", difficulty);
+      router.replace(`/practice?${params.toString()}`, { scroll: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory]);
+
+  const activeCat = practiceCategories.find((c) => c.id === activeCategory);
+
+  // Filter questions based on active category + user filters
+  const filteredQuestions = useMemo(() => {
+    if (!activeCat) return [];
+    const qs = filterQuestions({
+      company: company || undefined,
+      topic: topic || undefined,
+      difficulty: difficulty || undefined,
+      search: search || undefined,
+    });
+    // Keep only questions matching this category's roundTypes
+    return qs.filter((q) => activeCat.roundTypes.includes(q.roundType));
+  }, [activeCat, company, topic, difficulty, search]);
+
+  const handleSelectCategory = (id: string) => {
+    setActiveCategory((prev) => (prev === id ? null : id));
+    // Reset filters when changing category
+    setSearch("");
+    setCompany("");
+    setTopic("");
+    setDifficulty("");
+  };
 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Practice Questions</h1>
-          <p className="text-sm text-gray-500 mt-1">Finish your pending practice to improve your placement score.</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-3">
-          <div className="relative w-12 h-12">
-            <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="18" fill="none" stroke="#E5E7EB" strokeWidth="5" />
-              <circle cx="24" cy="24" r="18" fill="none" stroke="#3B82F6" strokeWidth="5"
-                strokeDasharray="16 113" strokeLinecap="round" />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-900">14%</div>
-          </div>
-          <div>
-            <div className="text-base font-bold text-gray-900">45/320 Solved</div>
-            <div className="text-xs text-gray-500">Total Progress</div>
-          </div>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900">Practice Zone</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Choose a category to start practising. Use filters to narrow down questions.
+        </p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            placeholder="Search questions..."
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+      {/* Category Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {practiceCategories.map((cat) => (
+          <CategoryCard
+            key={cat.id}
+            cat={cat}
+            active={activeCategory === cat.id}
+            onClick={() => handleSelectCategory(cat.id)}
           />
-        </div>
-        <select className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>Company</option>
-          <option>Google</option><option>Amazon</option><option>Flipkart</option><option>TCS</option><option>Microsoft</option>
-        </select>
-        <select className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>Topic</option>
-          <option>Arrays</option><option>DP</option><option>Graphs</option><option>Trees</option><option>SQL</option><option>OS</option>
-        </select>
-        <div className="flex border border-gray-200 rounded-lg overflow-hidden">
-          {["Easy", "Medium", "Hard"].map((d) => (
-            <button
-              key={d}
-              onClick={() => setActiveDiff(activeDiff === d ? null : d)}
-              className={`px-4 py-2.5 text-sm font-medium transition-colors ${
-                activeDiff === d
-                  ? d === "Easy" ? "bg-green-500 text-white"
-                    : d === "Medium" ? "bg-amber-500 text-white"
-                    : "bg-red-500 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
-        <select className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option>Round Type</option>
-          <option>Coding</option><option>System Design</option><option>HR</option>
-        </select>
+        ))}
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_80px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
-          {["QUESTION", "COMPANY", "DIFFICULTY", "TOPIC", "XP", "STATUS"].map((h) => (
-            <div key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</div>
-          ))}
-        </div>
+      {/* Question list panel — shown only when a category is selected */}
+      {activeCat && (
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          {/* Panel header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close category"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <span className="text-lg">{activeCat.emoji}</span>
+            <div>
+              <div className="font-bold text-gray-900 text-sm">{activeCat.label} Questions</div>
+              <div className="text-xs text-gray-500">{filteredQuestions.length} results</div>
+            </div>
+          </div>
 
-        {/* Rows */}
-        {questions.map((q) => (
-          <div
-            key={q.id}
-            className="grid grid-cols-[2fr_1fr_1fr_1fr_80px_80px] gap-4 px-5 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
-          >
-            <div className="font-medium text-gray-900 text-sm">{q.title}</div>
-            <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 ${q.companyColor} rounded flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>
-                {q.company[0]}
-              </div>
-              <span className="text-sm text-gray-700 truncate">{q.company}</span>
-            </div>
-            <div>
-              <span className={`text-xs font-medium px-2 py-1 rounded ${diffBadge(q.diff)}`}>{q.diff}</span>
-            </div>
-            <div className="text-sm text-gray-600">{q.topic}</div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">
-                <span className="text-amber-600 text-[10px] font-bold">$</span>
-              </div>
-              <span className="text-sm font-medium text-gray-700">{q.xp}</span>
-            </div>
-            <div>
-              {q.status === "solved" ? (
-                <CheckCircle className="w-5 h-5 text-blue-600" />
-              ) : q.status === "wrong" ? (
-                <XCircle className="w-5 h-5 text-red-500" />
-              ) : (
-                <span className="text-gray-300 text-lg">—</span>
+          {/* Filters — only 3: Search, Company, Topic, Difficulty */}
+          <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap gap-3 items-center">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search questions..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-8 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
               )}
             </div>
-          </div>
-        ))}
 
-        {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-t border-gray-200">
-          <span className="text-xs text-gray-500">Showing 1 to 10 of 45 entries</span>
-          <div className="flex gap-2">
-            <button className="border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg hover:bg-gray-50">Previous</button>
-            <button className="border border-gray-200 bg-white text-gray-900 text-xs px-3 py-1.5 rounded-lg hover:bg-gray-50 font-medium">Next</button>
+            {/* Company dropdown */}
+            <select
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
+            >
+              <option value="">All Companies</option>
+              {allCompanySlugs.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.name}</option>
+              ))}
+            </select>
+
+            {/* Topic dropdown */}
+            <select
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
+            >
+              <option value="">All Topics</option>
+              {allTopics.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+
+            {/* Difficulty toggles */}
+            <div className="flex gap-1">
+              {(["", "Easy", "Medium", "Hard"] as const).map((d) => (
+                <button
+                  key={d || "all"}
+                  onClick={() => setDifficulty(d as Difficulty | "")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    difficulty === d
+                      ? d === "Easy"   ? "bg-green-600 text-white" :
+                        d === "Medium" ? "bg-amber-500 text-white" :
+                        d === "Hard"   ? "bg-red-500 text-white"   : "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {d || "All"}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Question rows */}
+          {filteredQuestions.length === 0 ? (
+            <div className="py-16 text-center text-gray-400">
+              <div className="text-4xl mb-3">🔍</div>
+              <div className="font-medium">No questions found</div>
+              <div className="text-sm mt-1">Try adjusting your filters</div>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {filteredQuestions.map((q, idx) => (
+                <div
+                  key={q.id}
+                  className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-xs text-gray-400 font-mono w-6 shrink-0">{idx + 1}</span>
+
+                  {/* Title */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-gray-900 truncate">{q.title}</div>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-xs text-gray-500">{q.topic}</span>
+                      {q.companies.slice(0, 2).map((co) => (
+                        <span key={co} className="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 capitalize">
+                          {co}
+                        </span>
+                      ))}
+                      {q.hot && (
+                        <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5">🔥 Hot</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Difficulty badge */}
+                  <span className={`text-xs font-semibold rounded-full px-2.5 py-1 shrink-0 ${diffBadge(q.diff)}`}>
+                    {q.diff}
+                  </span>
+
+                  {/* XP */}
+                  <span className="text-xs font-bold text-amber-600 shrink-0">+{q.xp} XP</span>
+
+                  {/* LeetCode link */}
+                  {q.leetcodeUrl ? (
+                    <a
+                      href={q.leetcodeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 shrink-0"
+                      aria-label={`Open ${q.title} on LeetCode`}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <div className="w-4 shrink-0" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* If no category selected, show hint */}
+      {!activeCategory && (
+        <div className="text-center py-12 text-gray-400">
+          <div className="text-4xl mb-3">👆</div>
+          <div className="font-medium text-gray-600">Select a category above to start practising</div>
+          <div className="text-sm mt-1">Each category has filtered questions with difficulty & company tags</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Suspense wrapper required for useSearchParams in App Router
+export default function PracticePage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-4">
+        <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />
+          ))}
         </div>
       </div>
-    </div>
+    }>
+      <PracticeContent />
+    </Suspense>
   );
 }

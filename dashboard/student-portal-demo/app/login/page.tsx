@@ -1,87 +1,137 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
+import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff, Shield } from "lucide-react";
+import Link from "next/link";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
+  const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return;
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/dashboard");
+      } else {
+        console.error(result);
+        setError(`Incomplete Status: ${result.status}`);
+      }
+    } catch (err: unknown) {
+      console.error("Clerk Error:", err);
+      const clerkError = err as { errors?: { message: string; longMessage?: string }[] };
+      setError(clerkError?.errors?.[0]?.longMessage ?? clerkError?.errors?.[0]?.message ?? `Raw Error: ${JSON.stringify(err)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      {/* Logo */}
+      <div className="flex items-center gap-2 mb-8">
+        <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-sm">NST</div>
+        <span className="font-bold text-gray-900 text-base">PlacePrep</span>
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center">
-            <Shield className="w-8 h-8 text-blue-600" />
-          </div>
-        </div>
+        <h1 className="text-xl font-bold text-gray-900 mb-1">Sign in to PlacePrep</h1>
+        <p className="text-sm text-gray-500 mb-6">NST Interview Intelligence Portal</p>
 
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-1">Welcome back</h1>
-        <p className="text-sm text-gray-500 text-center mb-8">Sign in to your PlacePrep account</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div id="clerk-captcha"></div>
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
 
-        {/* Email */}
-        <div className="mb-4">
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          {/* Email */}
+          <div>
+            <label htmlFor="login-email" className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Email address
+            </label>
             <input
+              id="login-email"
               type="email"
-              placeholder="NST Email (.edu.in)"
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@nst.edu.in"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
-        </div>
 
-        {/* Password */}
-        <div className="mb-6">
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            />
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
+          {/* Password */}
+          <div>
+            <label htmlFor="login-password" className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="login-password"
+                type={showPw ? "text" : "password"}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((s) => !s)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label={showPw ? "Hide password" : "Show password"}
+              >
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Login button */}
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="w-full bg-gray-900 text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-        >
-          Sign In →
-        </button>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading || !isLoaded}
+            className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+          
+          {/* EMERGENCY GUEST BUTTON */}
+          <button
+            type="button"
+            onClick={() => router.push("/onboarding/step1")}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2.5 rounded-lg text-sm transition-colors border border-gray-300"
+          >
+            Guest Access (Demo Mode)
+          </button>
+        </form>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
-          <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs text-gray-400">or</span>
-          <div className="flex-1 h-px bg-gray-200" />
-        </div>
-
-        {/* Google SSO */}
-        <button className="w-full border border-gray-200 bg-white text-gray-700 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-3">
-          <svg className="w-4 h-4" viewBox="0 0 24 24">
-            <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"/>
-            <path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 0 1-6.723-4.823l-4.04 3.067A11.965 11.965 0 0 0 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987z"/>
-            <path fill="#4A90E2" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21z"/>
-            <path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 0 1 4.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067z"/>
-          </svg>
-          Sign in with NST Google Account
-        </button>
-
-        {/* Register link */}
-        <p className="text-sm text-gray-500 text-center mt-6">
-          Don't have an account?{" "}
+        <p className="text-sm text-center text-gray-500 mt-6">
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-blue-600 font-medium hover:underline">
-            Register
+            Create account
           </Link>
         </p>
       </div>

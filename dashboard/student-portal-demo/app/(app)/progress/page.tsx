@@ -1,3 +1,5 @@
+"use client";
+import { useRouter } from "next/navigation";
 import { TrendingUp, Flame, Trophy, Zap, AlertCircle } from "lucide-react";
 
 const companyReadiness = [
@@ -33,6 +35,8 @@ const heatmap = Array.from({ length: 84 }, (_, i) => {
 });
 
 export default function ProgressPage() {
+  const router = useRouter();
+
   return (
     <div className="max-w-5xl">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">My Progress</h1>
@@ -153,7 +157,10 @@ export default function ProgressPage() {
               <p className="text-xs text-gray-600 mb-4">
                 Only {w.pct}% mastered. {w.companies} tests this in {w.companyPct}% of interviews.
               </p>
-              <button className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}>
+              <button
+                onClick={() => router.push(`/practice?topic=${encodeURIComponent(w.topic)}`)}
+                className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}
+              >
                 Practice Now →
               </button>
             </div>
