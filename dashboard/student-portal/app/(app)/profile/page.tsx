@@ -3,9 +3,9 @@ import { useState } from "react";
 import {
   User, Settings, BarChart2, Bell,
   Edit2, Flame, RotateCcw, Trash2, AlertTriangle,
-  X, Plus, Check, Save, Link2, Github, Linkedin,
+  X, Plus, Check, Save, Link2, Globe, GitBranch,
   Zap, Trophy, Target, Code2, TrendingUp, BookOpen,
-  Shield, Eye, EyeOff, ChevronRight,
+  Shield, Eye, ChevronRight,
 } from "lucide-react";
 
 // ── Types ────────────────────────────────────────────
@@ -236,8 +236,8 @@ function OverviewTab({ user, onEdit }: { user: typeof mockUser; onEdit: () => vo
           <h3 className="font-semibold text-gray-900 mb-4">Social Links</h3>
           <div className="space-y-3">
             {[
-              { icon: Linkedin, label: "LinkedIn", value: linkedin, setValue: setLinkedin, placeholder: "linkedin.com/in/yourname" },
-              { icon: Github, label: "GitHub", value: github, setValue: setGithub, placeholder: "github.com/yourusername" },
+              { icon: Globe,      label: "LinkedIn", value: linkedin, setValue: setLinkedin, placeholder: "linkedin.com/in/yourname" },
+              { icon: GitBranch,  label: "GitHub",   value: github,   setValue: setGithub,   placeholder: "github.com/yourusername" },
             ].map(({ icon: Icon, label, value, setValue, placeholder }) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
