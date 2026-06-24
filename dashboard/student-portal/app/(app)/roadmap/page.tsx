@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle, Lock, ChevronDown, ChevronUp,
-  ExternalLink, Zap, Play, ChevronRight, BarChart2,
+  ExternalLink, Zap, Play, ChevronRight, BarChart2, ClipboardList
 } from "lucide-react";
 import { Suspense } from "react";
 import { getUserRoadmapCompanies, type UserRoadmapCompany, type RoadmapWeek } from "@/lib/mock-data";
@@ -214,7 +214,9 @@ function RoadmapContent() {
   if (!activeCompany) {
     return (
       <div className="text-center py-16">
-        <div className="text-4xl mb-3">📋</div>
+        <div className="flex justify-center mb-3 text-gray-300">
+          <ClipboardList className="w-12 h-12" />
+        </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">No companies in your roadmap yet</h2>
         <p className="text-gray-500 text-sm mb-6">Go to the Companies page and click &quot;Add to Roadmap&quot;</p>
         <Link href="/companies" className="bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">

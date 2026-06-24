@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Trophy, BarChart, Zap, CheckCircle, BellRing } from "lucide-react";
 import { mockNotifications, type AppNotification } from "@/lib/mock-data";
+
+const IconMap: Record<string, React.ElementType> = { Trophy, BarChart, Zap, CheckCircle };
 
 function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
@@ -29,8 +31,11 @@ function NotificationRow({
       onClick={() => onMarkRead(notification.id)}
     >
       {/* Emoji icon */}
-      <div className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-xl shrink-0 shadow-sm">
-        {notification.emoji}
+      <div className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+        {(() => {
+          const Icon = IconMap[notification.iconName] || Bell;
+          return <Icon className="w-5 h-5 text-gray-600" />;
+        })()}
       </div>
 
       {/* Content */}
@@ -142,7 +147,7 @@ export default function NotificationsPage() {
         {/* Empty state */}
         {notifications.length === 0 && (
           <div className="py-20 text-center">
-            <div className="text-5xl mb-4">🔔</div>
+            <div className="flex justify-center mb-4 text-gray-300"><BellRing className="w-16 h-16" /></div>
             <div className="font-semibold text-gray-700">No notifications yet</div>
             <div className="text-sm text-gray-400 mt-1">We&apos;ll notify you about your roadmap, badges, and new questions</div>
           </div>

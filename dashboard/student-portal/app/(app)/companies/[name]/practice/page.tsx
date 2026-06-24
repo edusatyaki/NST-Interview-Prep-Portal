@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, use } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Search, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, SearchX } from "lucide-react";
 import {
   filterQuestions,
   allTopics,
@@ -162,7 +162,9 @@ export default function CompanyPracticePage({
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         {filtered.length === 0 ? (
           <div className="py-16 text-center text-gray-400">
-            <div className="text-4xl mb-3">🔍</div>
+            <div className="flex justify-center mb-3 text-gray-300">
+              <SearchX className="w-12 h-12" />
+            </div>
             <div className="font-medium">No questions match your filters</div>
             <div className="text-sm mt-1">Try adjusting the topic, round, or difficulty</div>
           </div>

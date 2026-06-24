@@ -119,7 +119,7 @@ export interface RoadmapCompanyEntry {
 export interface PracticeCategory {
   id: string;           // "dsa"
   label: string;        // "DSA"
-  emoji: string;
+  iconName: string;
   description: string;
   totalQuestions: number;
   color: string;        // tailwind bg class
@@ -136,7 +136,7 @@ export interface AppNotification {
   type: NotificationType;
   title: string;
   subtitle?: string;
-  emoji: string;
+  iconName: string;
   createdAt: string;   // ISO string
   read: boolean;
 }
@@ -672,7 +672,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "dsa",
     label: "DSA",
-    emoji: "💻",
+    iconName: "Monitor",
     description: "Data Structures & Algorithms — arrays, graphs, DP, trees",
     totalQuestions: 2400,
     color: "bg-blue-50",
@@ -683,7 +683,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "system-design",
     label: "System Design",
-    emoji: "🏗️",
+    iconName: "Building",
     description: "High-level design — scalability, databases, caching, APIs",
     totalQuestions: 380,
     color: "bg-purple-50",
@@ -694,7 +694,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "aptitude",
     label: "Aptitude",
-    emoji: "🧮",
+    iconName: "Calculator",
     description: "Quant, logical reasoning, verbal for TCS NQT, Infosys Spectra",
     totalQuestions: 650,
     color: "bg-amber-50",
@@ -705,7 +705,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "hr",
     label: "HR & Behavioral",
-    emoji: "🗣️",
+    iconName: "Users",
     description: "STAR method, leadership principles, culture-fit questions",
     totalQuestions: 290,
     color: "bg-green-50",
@@ -716,7 +716,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "lld",
     label: "LLD / OOP",
-    emoji: "⚡",
+    iconName: "Zap",
     description: "Low-level design, design patterns, class diagrams, OOP",
     totalQuestions: 120,
     color: "bg-indigo-50",
@@ -727,7 +727,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "core-cs",
     label: "Core CS",
-    emoji: "🎓",
+    iconName: "GraduationCap",
     description: "OS, DBMS, Computer Networks, OOP fundamentals",
     totalQuestions: 500,
     color: "bg-gray-50",
@@ -738,7 +738,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "mock-oa",
     label: "Mock OA",
-    emoji: "🎯",
+    iconName: "Target",
     description: "Timed Online Assessment sets — simulate real company tests",
     totalQuestions: 40,
     color: "bg-red-50",
@@ -749,7 +749,7 @@ export const practiceCategories: PracticeCategory[] = [
   {
     id: "mcqs",
     label: "MCQs",
-    emoji: "📝",
+    iconName: "FileText",
     description: "Multiple choice: CS theory, output prediction, debugging",
     totalQuestions: 500,
     color: "bg-teal-50",
@@ -769,7 +769,7 @@ export const mockNotifications: AppNotification[] = [
     type: "badge",
     title: "You earned the \"5-Day Streak\" badge!",
     subtitle: "Keep it going — practice every day",
-    emoji: "🏆",
+    iconName: "Trophy",
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     read: false,
   },
@@ -778,7 +778,7 @@ export const mockNotifications: AppNotification[] = [
     type: "new_company",
     title: "New company added: Zepto (Indian Startup)",
     subtitle: "180 questions now available",
-    emoji: "📊",
+    iconName: "BarChart",
     createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     read: false,
   },
@@ -787,7 +787,7 @@ export const mockNotifications: AppNotification[] = [
     type: "xp",
     title: "You earned 50 XP for completing onboarding!",
     subtitle: "Your roadmap is live",
-    emoji: "⚡",
+    iconName: "Zap",
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     read: false,
   },
@@ -796,7 +796,7 @@ export const mockNotifications: AppNotification[] = [
     type: "roadmap",
     title: "You completed Week 1 of your Google roadmap",
     subtitle: "14/14 problems solved — Week 2 is now unlocked!",
-    emoji: "✅",
+    iconName: "CheckCircle",
     createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     read: true,
   },
