@@ -934,10 +934,10 @@ export const mockUserRoadmap: UserRoadmapCompany[] = [
     ],
   },
   {
-    slug: "flipkart",
-    name: "Flipkart",
-    initial: "F",
-    color: "bg-blue-500",
+    slug: "microsoft",
+    name: "Microsoft",
+    initial: "M",
+    color: "bg-blue-600",
     role: "SDE-1",
     totalWeeks: 8,
     currentWeek: 1,
@@ -966,19 +966,50 @@ export const mockUserRoadmap: UserRoadmapCompany[] = [
   },
 ];
 
+/** Remove roadmap company */
+export function removeRoadmapCompany(slug: string): void {
+  if (typeof window === "undefined") return;
+  const deleted = JSON.parse(sessionStorage.getItem("deleted_roadmaps") || "[]");
+  if (!deleted.includes(slug)) {
+    deleted.push(slug);
+    sessionStorage.setItem("deleted_roadmaps", JSON.stringify(deleted));
+  }
+}
+
 /** Read roadmap companies from sessionStorage (merges with mock data for demo) */
 export function getUserRoadmapCompanies(): UserRoadmapCompany[] {
-  // BACKEND TODO: GET /api/user/me/roadmap
-  // For now returns mock data. When backend is ready, fetch from API.
   try {
     if (typeof window === "undefined") return mockUserRoadmap;
+    
+    const deleted = JSON.parse(sessionStorage.getItem("deleted_roadmaps") || "[]");
     const stored = sessionStorage.getItem("roadmap_companies");
-    if (!stored) return mockUserRoadmap;
-    const entries: RoadmapCompanyEntry[] = JSON.parse(stored);
-    // Merge stored entries with mock data
-    const slugsInStore = entries.map((e) => e.slug);
-    const existing = mockUserRoadmap.filter((c) => slugsInStore.includes(c.slug));
-    return existing.length > 0 ? existing : mockUserRoadmap;
+    const entries: RoadmapCompanyEntry[] = stored ? JSON.parse(stored) : [];
+    
+    const addedRoadmaps = entries.map((entry) => {
+      const existing = mockUserRoadmap.find((c) => c.slug === entry.slug);
+      if (existing) return existing;
+      return {
+        slug: entry.slug,
+        name: entry.name,
+        initial: entry.initial,
+        color: entry.color,
+        role: entry.role,
+        totalWeeks: entry.weeks || 8,
+        currentWeek: 1,
+        pctComplete: 0,
+        weeks: []
+      };
+    });
+
+    // Combine mock ones + added ones
+    const combined = [...mockUserRoadmap];
+    addedRoadmaps.forEach((added) => {
+      if (!combined.some((c) => c.slug === added.slug)) {
+        combined.push(added);
+      }
+    });
+
+    return combined.filter((c) => !deleted.includes(c.slug));
   } catch {
     return mockUserRoadmap;
   }
