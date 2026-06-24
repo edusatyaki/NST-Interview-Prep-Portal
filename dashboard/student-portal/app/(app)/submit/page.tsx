@@ -418,7 +418,7 @@ function SubmitContent() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h2 className="text-[32px] leading-tight font-extrabold text-gray-900">
-              Ace your interview with <span className="text-orange-500">Interview Experience</span>
+              Ace your interview with <span className="text-blue-600">Interview Experience</span>
             </h2>
             <p className="text-gray-500 text-lg mt-2 font-normal">Turn your placement story into someone&apos;s prep guide.</p>
           </div>
@@ -459,7 +459,7 @@ function SubmitContent() {
                   <img alt={c.name} className="w-full h-full object-contain animate-fadeIn" src={c.logo} />
                 </div>
                 <p className="font-bold text-gray-900 text-sm">{c.name}</p>
-                <span className="text-[9px] uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full mt-2 font-bold shrink-0">
+                <span className="text-[9px] uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full mt-2 font-bold shrink-0">
                   {c.type}
                 </span>
                 <p className="text-[11px] text-gray-500 mt-2 font-medium">{c.count} Experiences</p>
@@ -468,7 +468,7 @@ function SubmitContent() {
                 <Link
                   href={`/companies/${c.slug}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="mt-3 text-[10px] font-semibold text-blue-600 hover:underline inline-flex items-center"
+                  className="mt-3 text-[10px] font-semibold text-blue-600 bg-white border border-gray-200 px-3 py-1.5 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all inline-flex items-center shadow-sm"
                 >
                   View Intel →
                 </Link>
@@ -544,7 +544,7 @@ function SubmitContent() {
                   setFilterCompany("All");
                   setFilterDifficulty("All");
                 }}
-                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                className="mt-3 px-4 py-2 bg-white text-blue-600 border border-gray-200 rounded-full hover:bg-gray-50 font-semibold text-sm transition-all shadow-sm"
               >
                 Reset Filters
               </button>
@@ -633,7 +633,7 @@ function SubmitContent() {
                     </span>
                   </div>
 
-                  <div className="mt-5 border-l-4 border-orange-500 pl-4 bg-gray-50/50 py-3 pr-3 rounded-r-lg">
+                  <div className="mt-5 border-l-4 border-blue-500 pl-4 bg-blue-50/30 py-3 pr-3 rounded-r-lg">
                     <h5 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Experience Highlights</h5>
                     <p className="text-sm text-gray-700 leading-relaxed font-normal">
                       {exp.experience}
@@ -682,7 +682,7 @@ function SubmitContent() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)}
-                        className="text-blue-600 hover:text-blue-700 font-bold hover:underline inline-flex items-center gap-0.5"
+                        className="px-4 py-2 bg-white text-blue-600 border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 font-semibold inline-flex items-center gap-1.5 transition-all text-xs shadow-sm"
                       >
                         {expandedId === exp.id ? "Hide Details" : "View Details"}
                         {expandedId === exp.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}

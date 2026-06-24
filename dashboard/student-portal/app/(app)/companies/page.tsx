@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, ChevronRight, Plus, Check } from "lucide-react";
+import { Search, ChevronRight, Plus, Check, XCircle } from "lucide-react";
 import { companiesList } from "@/lib/mock-data";
 import AddToRoadmapModal from "@/components/modals/AddToRoadmapModal";
 
@@ -21,6 +21,7 @@ export default function CompaniesPage() {
   const [search, setSearch] = useState("");
   const [roadmapSlugs, setRoadmapSlugs] = useState<string[]>([]);
   const [modalCompany, setModalCompany] = useState<typeof companiesList[number] | null>(null);
+  const [showLimitToast, setShowLimitToast] = useState(false);
 
   // Read which companies are already in roadmap (from sessionStorage)
   useEffect(() => {
@@ -48,6 +49,16 @@ export default function CompaniesPage() {
 
   const handleAdded = (slug: string) => {
     setRoadmapSlugs((prev) => [...prev.filter((s) => s !== slug), slug]);
+  };
+
+  const handleAddClick = (co: typeof companiesList[number], inRoadmap: boolean) => {
+    if (inRoadmap) return;
+    if (roadmapSlugs.length >= 5) {
+      setShowLimitToast(true);
+      setTimeout(() => setShowLimitToast(false), 3000);
+      return;
+    }
+    setModalCompany(co);
   };
 
   return (
@@ -133,7 +144,7 @@ export default function CompaniesPage() {
                 <div className="mt-auto flex gap-2">
                   {/* Add to Roadmap button */}
                   <button
-                    onClick={() => !inRoadmap && setModalCompany(co)}
+                    onClick={() => handleAddClick(co, inRoadmap)}
                     disabled={inRoadmap}
                     className={`flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors border ${
                       inRoadmap
@@ -174,6 +185,16 @@ export default function CompaniesPage() {
           onClose={() => setModalCompany(null)}
           onAdded={handleAdded}
         />
+      )}
+
+      {/* Limit Reached Toast */}
+      {showLimitToast && (
+        <div className="fixed bottom-5 right-5 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 text-sm transition-opacity duration-300">
+          <div className="bg-red-100 text-red-600 rounded-full p-1 shrink-0">
+            <XCircle className="w-4 h-4" />
+          </div>
+          <span className="font-semibold">Cannot add more than 5 roadmaps. It gets messy!</span>
+        </div>
       )}
     </div>
   );
