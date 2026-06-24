@@ -1,7 +1,11 @@
 "use client";
 import { Suspense, useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, Search, X } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, Monitor, Building, Calculator, Users, Zap, GraduationCap, Target, FileText, HelpCircle, SearchX, MousePointerClick } from "lucide-react";
+
+const IconMap: Record<string, React.ElementType> = {
+  Monitor, Building, Calculator, Users, Zap, GraduationCap, Target, FileText
+};
 import {
   practiceCategories,
   filterQuestions,
@@ -37,7 +41,12 @@ function CategoryCard({
       }`}
     >
       <div className="flex items-start justify-between mb-3">
-        <span className="text-2xl">{cat.emoji}</span>
+        <span className="text-gray-700">
+          {(() => {
+            const Icon = IconMap[cat.iconName] || HelpCircle;
+            return <Icon className="w-6 h-6" />;
+          })()}
+        </span>
         {active && (
           <span className="text-[10px] font-bold text-blue-600 bg-blue-100 rounded-full px-2 py-0.5">
             ACTIVE
@@ -145,7 +154,12 @@ function PracticeContent() {
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <span className="text-lg">{activeCat.emoji}</span>
+            <span className="text-gray-700">
+              {(() => {
+                const Icon = IconMap[activeCat.iconName] || HelpCircle;
+                return <Icon className="w-5 h-5" />;
+              })()}
+            </span>
             <div>
               <div className="font-bold text-gray-900 text-sm">{activeCat.label} Questions</div>
               <div className="text-xs text-gray-500">{filteredQuestions.length} results</div>
@@ -221,7 +235,9 @@ function PracticeContent() {
           {/* Question rows */}
           {filteredQuestions.length === 0 ? (
             <div className="py-16 text-center text-gray-400">
-              <div className="text-4xl mb-3">🔍</div>
+              <div className="flex justify-center mb-3 text-gray-300">
+                <SearchX className="w-12 h-12" />
+              </div>
               <div className="font-medium">No questions found</div>
               <div className="text-sm mt-1">Try adjusting your filters</div>
             </div>
@@ -282,7 +298,9 @@ function PracticeContent() {
       {/* If no category selected, show hint */}
       {!activeCategory && (
         <div className="text-center py-12 text-gray-400">
-          <div className="text-4xl mb-3">👆</div>
+          <div className="flex justify-center mb-3 text-gray-300">
+            <MousePointerClick className="w-12 h-12" />
+          </div>
           <div className="font-medium text-gray-600">Select a category above to start practising</div>
           <div className="text-sm mt-1">Each category has filtered questions with difficulty & company tags</div>
         </div>

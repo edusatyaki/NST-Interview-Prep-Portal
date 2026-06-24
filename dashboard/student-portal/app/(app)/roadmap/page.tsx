@@ -2,7 +2,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Zap, Trash2, Timer, Trophy, XCircle } from "lucide-react";
+import {
+  CheckCircle, Lock, ChevronDown, ChevronUp,
+  ExternalLink, Zap, Play, ChevronRight, BarChart2, ClipboardList,
+  Trash2, Timer, Trophy, XCircle
+} from "lucide-react";
 import { Suspense } from "react";
 import {
   getUserRoadmapCompanies,
@@ -299,7 +303,9 @@ function RoadmapContent() {
   if (!activeCompany || companies.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="text-4xl mb-3">📋</div>
+        <div className="flex justify-center mb-3 text-gray-300">
+          <ClipboardList className="w-12 h-12" />
+        </div>
         <h2 className="text-lg font-bold text-gray-900 mb-2">No companies in your roadmap yet</h2>
         <p className="text-gray-500 text-sm mb-6">
           Go to the Companies page and click &quot;Add to Roadmap&quot;
