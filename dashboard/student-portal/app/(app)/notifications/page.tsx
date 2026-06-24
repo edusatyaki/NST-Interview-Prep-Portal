@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Bell, CheckCheck, Trophy, BarChart, Zap, CheckCircle, BellRing } from "lucide-react";
+import { Bell, CheckCheck, Trophy, BarChart, Zap, CheckCircle, BellRing, FileText, Target, Star } from "lucide-react";
 import { mockNotifications, type AppNotification } from "@/lib/mock-data";
 
-const IconMap: Record<string, React.ElementType> = { Trophy, BarChart, Zap, CheckCircle };
+const IconMap: Record<string, React.ElementType> = { Trophy, BarChart, Zap, CheckCircle, FileText, Target, Star };
 
 function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
