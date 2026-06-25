@@ -2,24 +2,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
- House, Map, Building2, Code2, TrendingUp, Trophy, Send,
- Shield, HelpCircle, MessageCircle, CalendarDays, MessageSquare,
+ House, Building2, TrendingUp, Trophy, Send,
+ MessageCircle, CalendarDays, Map, Dumbbell,
 } from "lucide-react";
 
 const navItems = [
- { icon: House,     label: "Home",        href: "/dashboard" },
- { icon: Map,      label: "My Roadmap",     href: "/roadmap" },
- { icon: Building2,   label: "Companies",      href: "/companies" },
- { icon: Code2,     label: "Practice",      href: "/practice" },
- { icon: TrendingUp,   label: "My Progress",     href: "/progress" },
- { icon: Trophy,     label: "Leaderboard",     href: "/leaderboard" },
- { icon: Send,      label: "Interview Experience",href: "/submit" },
+ { icon: House,     label: "Home",               href: "/dashboard" },
+ { icon: Building2, label: "Companies",          href: "/companies" },
+ { icon: Map,       label: "My Roadmap",         href: "/roadmap" },
+ { icon: Dumbbell,  label: "Practice",           href: "/practice" },
+ { icon: TrendingUp,label: "My Progress",        href: "/progress" },
+ { icon: Trophy,    label: "Leaderboard",        href: "/leaderboard" },
+ { icon: Send,      label: "Interview Experience", href: "/submit" },
 ];
 
 const connectItems = [
- { icon: MessageCircle, label: "Ask a Doubt",  href: "/doubts" },
- { icon: CalendarDays, label: "Book a Session", href: "/sessions" },
- { icon: MessageSquare, label: "Messages",    href: "/messages" },
+ { icon: MessageCircle, label: "Ask a Doubt",   href: "/doubts" },
+ { icon: CalendarDays,  label: "Book a Session", href: "/sessions" },
 ];
 
 export default function Sidebar() {
@@ -72,17 +71,6 @@ export default function Sidebar() {
      </div>
     </div>
    </nav>
-
-   <div className="px-3 pb-4 space-y-0.5 border-t border-gray-100 pt-3">
-    <button className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium w-full bg-green-50 text-green-700 hover:bg-green-100 ">
-     <Shield className="w-4 h-4 shrink-0" />
-     Share a Concern
-    </button>
-    <button className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium w-full text-gray-500 hover:bg-gray-100 ">
-     <HelpCircle className="w-4 h-4 shrink-0" />
-     Help &amp; Support
-    </button>
-   </div>
-  </aside>
+ </aside>
  );
 }

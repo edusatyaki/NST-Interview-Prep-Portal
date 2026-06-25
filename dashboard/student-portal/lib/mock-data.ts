@@ -150,7 +150,7 @@ export interface AppNotification {
 export const topicsByCategory: Record<CompanyCategory, TopicRating[]> = {
   maang: [
     { id: "arrays", label: "Arrays & Strings", defaultRating: 5 },
-    { id: "dp", label: "Dynamic Programming", defaultRating: 3 },
+    { id: "dp", label: "DP", defaultRating: 3 },
     { id: "graphs", label: "Graphs & BFS/DFS", defaultRating: 4 },
     { id: "trees", label: "Trees & Binary Search", defaultRating: 5 },
     { id: "sysDesign", label: "System Design (HLD)", defaultRating: 3 },
@@ -160,7 +160,7 @@ export const topicsByCategory: Record<CompanyCategory, TopicRating[]> = {
   ],
   product: [
     { id: "arrays", label: "Arrays & Strings", defaultRating: 5 },
-    { id: "dp", label: "Dynamic Programming", defaultRating: 4 },
+    { id: "dp", label: "DP", defaultRating: 4 },
     { id: "trees", label: "Trees & Graphs", defaultRating: 5 },
     { id: "lld", label: "Low Level Design (LLD)", defaultRating: 3 },
     { id: "sysDesign", label: "System Design (HLD)", defaultRating: 4 },
@@ -195,7 +195,7 @@ export const topicsByCategory: Record<CompanyCategory, TopicRating[]> = {
   ],
   other: [
     { id: "arrays", label: "Arrays & Strings", defaultRating: 5 },
-    { id: "dp", label: "Dynamic Programming", defaultRating: 3 },
+    { id: "dp", label: "DP", defaultRating: 3 },
     { id: "trees", label: "Trees & Graphs", defaultRating: 4 },
     { id: "sql", label: "SQL & Databases", defaultRating: 5 },
     { id: "sysDesign", label: "System Design", defaultRating: 3 },
@@ -358,7 +358,7 @@ const defaultCompanyIntel: CompanyIntel = {
     { n: 4, name: "HR Round",          dur: "30 mins • Behavioral" },
   ],
   topTopics: [
-    { topic: "Dynamic Programming", pct: 28 },
+    { topic: "DP", pct: 28 },
     { topic: "Graphs / DFS",        pct: 22 },
     { topic: "Trees",               pct: 18 },
     { topic: "Arrays & Strings",    pct: 15 },
@@ -399,7 +399,7 @@ const companyIntelMap: Record<string, Partial<CompanyIntel>> = {
     ],
     topTopics: [
       { topic: "Arrays & Strings",    pct: 89 },
-      { topic: "Dynamic Programming", pct: 76 },
+      { topic: "DP", pct: 76 },
       { topic: "Graphs",              pct: 71 },
       { topic: "Trees",               pct: 68 },
       { topic: "Binary Search",       pct: 64 },
@@ -434,7 +434,7 @@ const companyIntelMap: Record<string, Partial<CompanyIntel>> = {
     ],
     topTopics: [
       { topic: "Arrays & Strings",    pct: 82 },
-      { topic: "Dynamic Programming", pct: 69 },
+      { topic: "DP", pct: 69 },
       { topic: "Trees",               pct: 65 },
       { topic: "Leadership Principles", pct: 90 },
       { topic: "System Design",       pct: 55 },
@@ -486,7 +486,7 @@ const companyIntelMap: Record<string, Partial<CompanyIntel>> = {
       { topic: "Arrays & Strings",    pct: 78 },
       { topic: "Trees",               pct: 72 },
       { topic: "LLD / Design",        pct: 60 },
-      { topic: "Dynamic Programming", pct: 58 },
+      { topic: "DP", pct: 58 },
       { topic: "Graphs",              pct: 52 },
       { topic: "Behavioral",          pct: 75 },
     ],
@@ -610,7 +610,7 @@ export const searchIndex: SearchResult[] = [
   })),
   // Quick topics
   { type: "topic", label: "Arrays & Strings",    subtitle: "89% of Google interviews",  href: "/practice?topic=Arrays" },
-  { type: "topic", label: "Dynamic Programming", subtitle: "76% of FAANG interviews",   href: "/practice?topic=DP" },
+  { type: "topic", label: "DP", subtitle: "76% of FAANG interviews",   href: "/practice?topic=DP" },
   { type: "topic", label: "System Design (HLD)", subtitle: "Critical for SDE-2 roles",  href: "/practice?roundType=System+Design" },
   { type: "topic", label: "LLD / Low Level Design", subtitle: "Flipkart, Microsoft",    href: "/practice?roundType=LLD" },
   { type: "topic", label: "Graphs & BFS/DFS",    subtitle: "71% of Google interviews",  href: "/practice?topic=Graphs" },
@@ -632,10 +632,12 @@ export function searchAll(query: string): SearchResult[] {
 // DASHBOARD DATA
 // BACKEND TODO: GET /api/dashboard (authenticated, per-user)
 // ─────────────────────────────────────────────────────
+// ALIGNED WITH mockUserRoadmap — always derived from the same companies in the user's roadmap
+// BACKEND TODO: GET /api/user/roadmap-companies → maps to dashboardTargetCompanies dynamically
 export const dashboardTargetCompanies = [
-  { initial: "G", name: "Google",    role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",   slug: "google" },
-  { initial: "A", name: "Amazon",    role: "SDE-1",      readiness: 70, color: "bg-green-500", slug: "amazon" },
-  { initial: "F", name: "Flipkart",  role: "SDE-1",      readiness: 20, color: "bg-blue-500",   slug: "flipkart" },
+  { initial: "G", name: "Google",   role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",  slug: "google"   },
+  { initial: "A", name: "Amazon",   role: "SDE-1",      readiness: 70, color: "bg-green-500", slug: "amazon"   },
+  { initial: "T", name: "TCS",      role: "Ninja",      readiness: 62, color: "bg-indigo-600",slug: "tcs"      },
 ];
 
 export const dashboardTodayProblems = [
@@ -649,6 +651,71 @@ export const dashboardRecentReports = [
   { id: 5, initial: "M", name: "Meta",  color: "bg-blue-700",  role: "Production Engineer",    rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
   { id: 6, initial: "A", name: "Apple", color: "bg-gray-600",  role: "Frontend Engineer",      rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
 ];
+
+// Per-company today's task questions
+// BACKEND TODO: GET /api/dashboard/today-tasks — returns questions for current roadmap day per company
+export const todayTasksByCompany = [
+  {
+    company: "Google",
+    slug: "google",
+    color: "bg-blue-600",
+    week: 2,
+    day: 3,
+    totalWeeks: 8,
+    daysPracticed: 10,
+    questions: [
+      { id: 1,  title: "Two Sum",          difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 2,  title: "Valid Anagram",     difficulty: "Easy"   as Difficulty, xp: 15, done: false },
+      { id: 3,  title: "Group Anagrams",    difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 4,  title: "Top K Frequent",    difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 5,  title: "Encode & Decode",   difficulty: "Medium" as Difficulty, xp: 20, done: false },
+    ],
+  },
+  {
+    company: "Amazon",
+    slug: "amazon",
+    color: "bg-green-500",
+    week: 1,
+    day: 5,
+    totalWeeks: 4,
+    daysPracticed: 5,
+    questions: [
+      { id: 10, title: "Best Time to Buy Stock",         difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 11, title: "Contains Duplicate",             difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 12, title: "Product of Array Except Self",   difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 13, title: "Longest Consecutive Sequence",   difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 14, title: "Missing Number",                 difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+    ],
+  },
+  {
+    company: "TCS",
+    slug: "tcs",
+    color: "bg-indigo-600",
+    week: 1,
+    day: 1,
+    totalWeeks: 6,
+    daysPracticed: 1,
+    questions: [
+      { id: 30, title: "Find Duplicate in Array",        difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 31, title: "Reverse a Linked List",          difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 32, title: "Check Balanced Parentheses",     difficulty: "Easy"   as Difficulty, xp: 15, done: false },
+      { id: 33, title: "Binary Search",                  difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 34, title: "Bubble Sort Implementation",     difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+    ],
+  },
+];
+
+
+// User stats used for Prep Score calculation
+// BACKEND TODO: GET /api/user/stats — returns real activity data
+export const userPrepStats = {
+  problemsSolved: 45,     // total problems solved by user
+  totalAssigned: 150,     // total problems in their roadmap so far
+  dayStreak: 12,          // current streak
+  bestStreak: 18,         // best ever streak
+  xpEarned: 2450,         // total XP
+  maxXpForLevel: 5000,    // XP needed to complete current roadmap
+};
 
 // ─────────────────────────────────────────────────────
 // UNIQUE TOPICS & COMPANIES (for filter dropdowns)
@@ -813,7 +880,7 @@ export const mockNotifications: AppNotification[] = [
     id: "n6",
     type: "question",
     title: "3 new questions added for Amazon SDE-1",
-    subtitle: "Dynamic Programming — new LP-style problems",
+    subtitle: "DP — new LP-style problems",
     iconName: "Target",
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     read: true,
@@ -881,8 +948,8 @@ export const mockUserRoadmap: UserRoadmapCompany[] = [
         ],
       },
       { weekNumber: 4,  topic: "Graphs & BFS/DFS",         totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
-      { weekNumber: 5,  topic: "Dynamic Programming I",     totalQuestions: 12, doneQuestions: 0, status: "locked", questions: [] },
-      { weekNumber: 6,  topic: "Dynamic Programming II",    totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 5,  topic: "DP I",     totalQuestions: 12, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 6,  topic: "DP II",    totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 7,  topic: "Backtracking",              totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 8,  topic: "Heaps & Priority Queues",   totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 9,  topic: "System Design Basics",      totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
@@ -925,7 +992,7 @@ export const mockUserRoadmap: UserRoadmapCompany[] = [
           { id: 22, title: "Serialize Binary Tree",      diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", done: false },
         ],
       },
-      { weekNumber: 3, topic: "Dynamic Programming",      totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 3, topic: "DP",      totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 4, topic: "Graphs & BFS/DFS",          totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 5, topic: "System Design (LP context)",totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
       { weekNumber: 6, topic: "All 16 LP Stories",          totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },

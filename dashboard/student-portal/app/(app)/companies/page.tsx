@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ChevronRight, Plus, Check, XCircle } from "lucide-react";
-import { companiesList } from "@/lib/mock-data";
+import { companiesList, getUserRoadmapCompanies } from "@/lib/mock-data";
 import AddToRoadmapModal from "@/components/modals/AddToRoadmapModal";
 
 const FILTERS = ["All", "FAANG", "Indian Product", "Indian Startup", "Service"] as const;
@@ -23,20 +23,13 @@ export default function CompaniesPage() {
   const [modalCompany, setModalCompany] = useState<typeof companiesList[number] | null>(null);
   const [showLimitToast, setShowLimitToast] = useState(false);
 
-  // Read which companies are already in roadmap (from sessionStorage)
+  // Read which companies are already in roadmap using the dynamic helper
   useEffect(() => {
-    try {
-      const stored = sessionStorage.getItem("roadmap_companies");
-      if (stored) {
-        const entries = JSON.parse(stored) as { slug: string }[];
-        setRoadmapSlugs(entries.map((e) => e.slug));
-      } else {
-        // Default: Google, Amazon, Flipkart are in roadmap from onboarding
-        setRoadmapSlugs(["google", "amazon", "flipkart"]);
-      }
-    } catch {
-      setRoadmapSlugs([]);
-    }
+    // Need timeout to let component mount since mock-data accesses sessionStorage
+    setTimeout(() => {
+      const activeRoadmaps = getUserRoadmapCompanies();
+      setRoadmapSlugs(activeRoadmaps.map((r) => r.slug));
+    }, 0);
   }, []);
 
   const filtered = companiesList.filter((c) => {

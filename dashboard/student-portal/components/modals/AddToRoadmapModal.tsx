@@ -98,12 +98,16 @@ export default function AddToRoadmapModal({ company, onClose, onAdded }: Props) 
             <>
               {/* Company badge */}
               <div className="flex items-center gap-3 mb-5">
-                <div className={`w-10 h-10 ${company.color} rounded-xl flex items-center justify-center text-white font-bold`}>
-                  {company.initial}
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://www.google.com/s2/favicons?sz=64&domain=${company.slug}.com`}
+                  alt={company.name}
+                  className="w-12 h-12 rounded-xl shrink-0 object-contain bg-white border border-gray-100 p-1 shadow-sm"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+                />
                 <div>
-                  <div className="font-bold text-gray-900">{company.name}</div>
-                  <div className="text-xs text-gray-500">{company.type}</div>
+                  <div className="font-bold text-gray-900 text-lg">{company.name}</div>
+                  <div className="text-xs text-blue-600 font-medium bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full inline-block mt-0.5">{company.type}</div>
                 </div>
               </div>
 

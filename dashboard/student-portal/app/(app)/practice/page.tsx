@@ -71,7 +71,7 @@ function PracticeContent() {
 
   // Which category is active (from URL or selection)
   const [activeCategory, setActiveCategory] = useState<string | null>(
-    searchParams.get("category") ?? null
+    searchParams.get("category") ?? (searchParams.get("company") ? "dsa" : null)
   );
 
   // Filters — only 3 as per design

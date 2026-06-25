@@ -342,47 +342,49 @@ export default function SessionsPage() {
   const past = sessions.filter((s) => ["completed", "cancelled"].includes(s.status));
 
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-6xl">
       <div className="mb-5">
         <h1 className="text-xl font-bold text-gray-900">Book a Session</h1>
         <p className="text-xs text-gray-400 mt-0.5">Schedule 1:1 sessions with your faculty mentor</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] xl:grid-cols-[300px_1fr_300px] gap-6">
         {/* Left: Calendar */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <MiniCalendar onSelect={setSelectedDate} selected={selectedDate} />
 
           {selectedDate ? (
-            <div className="bg-white border border-gray-200 rounded p-3">
-              <p className="text-xs text-gray-400 mb-0.5">Selected</p>
-              <p className="text-sm font-semibold text-gray-900 mb-3">{fmtDate(selectedDate)}</p>
+            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+              <p className="text-xs text-gray-400 mb-1">Selected Date</p>
+              <p className="text-sm font-bold text-gray-900 mb-4">{fmtDate(selectedDate)}</p>
               <button
                 onClick={() => setShowBooking(true)}
-                className="w-full bg-blue-600 text-white text-sm font-semibold py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-1.5"
+                className="w-full bg-blue-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
-                <Send className="w-3.5 h-3.5" /> Request This Slot
+                <Send className="w-4 h-4" /> Request Slot
               </button>
             </div>
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded p-3 text-xs text-gray-400 space-y-1">
-              <p className="font-semibold text-gray-600 text-xs mb-1.5">How it works</p>
-              <p>1. Click a blue (available) date on the calendar</p>
-              <p>2. Choose time slot and session topic</p>
-              <p>3. Faculty confirms or proposes a new time</p>
-              <p>4. Jitsi Meet link is auto-generated on confirmation</p>
+            <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 text-xs text-gray-500 space-y-2">
+              <p className="font-bold text-blue-900 text-sm mb-2 flex items-center gap-1.5">
+                <CalendarDays className="w-4 h-4 text-blue-600" /> How it works
+              </p>
+              <p className="flex items-start gap-2"><span className="font-bold text-blue-300">1.</span> Pick any available date on the calendar</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-blue-300">2.</span> Choose a time slot and session topic</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-blue-300">3.</span> Faculty confirms or proposes a new time</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-blue-300">4.</span> Join via the auto-generated Jitsi Meet link</p>
             </div>
           )}
         </div>
 
-        {/* Right: Sessions */}
+        {/* Middle: Sessions List */}
         <div>
           {/* Tab switcher */}
-          <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-4 w-fit bg-white">
+          <div className="flex items-center gap-0 border border-gray-200 rounded-lg overflow-hidden mb-5 w-fit bg-white shadow-sm p-1">
             {(["upcoming", "past"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)}
-                className={`px-4 py-1.5 text-xs font-semibold capitalize border-r border-gray-200 last:border-r-0 ${
-                  tab === t ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-50"
+                className={`px-5 py-1.5 text-xs font-bold capitalize rounded-md transition-colors ${
+                  tab === t ? "bg-gray-900 text-white shadow" : "text-gray-500 hover:text-gray-900"
                 }`}
               >
                 {t} ({t === "upcoming" ? upcoming.length : past.length})
@@ -390,12 +392,12 @@ export default function SessionsPage() {
             ))}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {(tab === "upcoming" ? upcoming : past).length === 0 ? (
-              <div className="text-center py-12 bg-white border border-gray-200 rounded">
-                <CalendarDays className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">
-                  {tab === "upcoming" ? "No upcoming sessions — pick a date to book one" : "No past sessions yet"}
+              <div className="text-center py-16 bg-white border border-dashed border-gray-300 rounded-2xl">
+                <CalendarDays className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-500">
+                  {tab === "upcoming" ? "No upcoming sessions. Pick a date to book one!" : "No past sessions yet."}
                 </p>
               </div>
             ) : (
@@ -403,6 +405,44 @@ export default function SessionsPage() {
                 <SessionCard key={s.id} session={s} onAcceptProposal={handleAcceptProposal} />
               ))
             )}
+          </div>
+        </div>
+
+        {/* Right: Info Card */}
+        <div>
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-blue-400/20 blur-xl"></div>
+            
+            <div className="relative z-10">
+              <div className="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/10">
+                <User className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-bold text-lg mb-1">Need Expert Help?</h3>
+              <p className="text-blue-100 text-xs mb-5 leading-relaxed">
+                Book a 1:1 session with your mentor for personalized guidance and interview prep.
+              </p>
+              
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
+                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> Resume Review & Polish
+                </li>
+                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
+                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> Mock Interviews (DSA/HR)
+                </li>
+                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
+                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> System Design & LLD
+                </li>
+                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
+                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> General Career Guidance
+                </li>
+              </ul>
+              
+              <div className="bg-white/10 rounded-xl p-3.5 backdrop-blur-sm border border-white/10 text-[10px] leading-relaxed text-blue-50">
+                Sessions are subject to faculty availability. Please book at least 24 hours in advance.
+              </div>
+            </div>
           </div>
         </div>
       </div>
