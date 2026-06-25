@@ -247,8 +247,8 @@ function SubmitContent() {
   const [formStars, setFormStars] = useState(3);
   const [formExperienceText, setFormExperienceText] = useState("");
   const [formTipsText, setFormTipsText] = useState("");
-  const [formRoundsCount, setFormRoundsCount] = useState(3);
-  const [formProblemsCount, setFormProblemsCount] = useState(2);
+  const [formRoundsCount, setFormRoundsCount] = useState<number | "">(3);
+  const [formProblemsCount, setFormProblemsCount] = useState<number | "">(2);
   const [formTags, setFormTags] = useState<string[]>(["Arrays", "Dynamic Programming"]);
   const [formTagInput, setFormTagInput] = useState("");
   // Per-round detail inputs
@@ -368,8 +368,8 @@ function SubmitContent() {
       company: formCompany,
       logoUrl: logos[formCompany] || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=60",
       role: formRole,
-      roundsCount: formRoundsCount,
-      problemsCount: formProblemsCount,
+      roundsCount: Number(formRoundsCount) || 1,
+      problemsCount: Number(formProblemsCount) || 1,
       outcome: formOutcome,
       difficulty: formStars <= 2 ? "Easy" : formStars <= 4 ? "Medium" : "Hard",
       workType: "Hybrid",
@@ -380,7 +380,7 @@ function SubmitContent() {
       upvotes: 0,
       hasUpvoted: false,
       hasBookmarked: false,
-      rounds: formRoundDetails.slice(0, formRoundsCount).map((r, i) => ({
+      rounds: formRoundDetails.slice(0, Number(formRoundsCount) || 1).map((r, i) => ({
         roundNumber: i + 1,
         type: r.type,
         topics: r.topics.split(",").map((t) => t.trim()).filter(Boolean),
@@ -852,7 +852,12 @@ function SubmitContent() {
                           max={8}
                           value={formRoundsCount}
                           onChange={(e) => {
-                            const n = Math.min(8, Math.max(1, Number(e.target.value)));
+                            const val = e.target.value;
+                            if (val === "") {
+                              setFormRoundsCount("");
+                              return;
+                            }
+                            const n = Number(val);
                             setFormRoundsCount(n);
                             // Expand formRoundDetails if needed
                             setFormRoundDetails((prev) => {
@@ -860,6 +865,10 @@ function SubmitContent() {
                               while (copy.length < n) copy.push({ type: "DSA Coding", topics: "", description: "", cleared: true });
                               return copy;
                             });
+                          }}
+                          onBlur={() => {
+                            if (formRoundsCount === "" || formRoundsCount < 1) setFormRoundsCount(1);
+                            else if (formRoundsCount > 8) setFormRoundsCount(8);
                           }}
                           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
@@ -869,9 +878,14 @@ function SubmitContent() {
                         <input
                           type="number"
                           min={0}
-                          max={20}
                           value={formProblemsCount}
-                          onChange={(e) => setFormProblemsCount(Number(e.target.value))}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormProblemsCount(val === "" ? "" : Number(val));
+                          }}
+                          onBlur={() => {
+                            if (formProblemsCount === "" || formProblemsCount < 0) setFormProblemsCount(0);
+                          }}
                           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -883,7 +897,7 @@ function SubmitContent() {
                         <Layers className="w-4 h-4 text-blue-600" />
                         <span className="text-sm font-semibold text-gray-700">Round-wise Experience</span>
                       </div>
-                      {Array.from({ length: formRoundsCount }, (_, i) => (
+                      {Array.from({ length: typeof formRoundsCount === 'number' ? formRoundsCount : 0 }, (_, i) => (
                         <div key={i} className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Round {i + 1}</span>

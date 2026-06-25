@@ -632,10 +632,12 @@ export function searchAll(query: string): SearchResult[] {
 // DASHBOARD DATA
 // BACKEND TODO: GET /api/dashboard (authenticated, per-user)
 // ─────────────────────────────────────────────────────
+// ALIGNED WITH mockUserRoadmap — always derived from the same companies in the user's roadmap
+// BACKEND TODO: GET /api/user/roadmap-companies → maps to dashboardTargetCompanies dynamically
 export const dashboardTargetCompanies = [
-  { initial: "G", name: "Google",    role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",   slug: "google" },
-  { initial: "A", name: "Amazon",    role: "SDE-1",      readiness: 70, color: "bg-green-500", slug: "amazon" },
-  { initial: "F", name: "Flipkart",  role: "SDE-1",      readiness: 20, color: "bg-blue-500",   slug: "flipkart" },
+  { initial: "G", name: "Google",   role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",  slug: "google"   },
+  { initial: "A", name: "Amazon",   role: "SDE-1",      readiness: 70, color: "bg-green-500", slug: "amazon"   },
+  { initial: "T", name: "TCS",      role: "Ninja",      readiness: 62, color: "bg-indigo-600",slug: "tcs"      },
 ];
 
 export const dashboardTodayProblems = [
@@ -686,19 +688,19 @@ export const todayTasksByCompany = [
     ],
   },
   {
-    company: "Flipkart",
-    slug: "flipkart",
-    color: "bg-blue-500",
+    company: "TCS",
+    slug: "tcs",
+    color: "bg-indigo-600",
     week: 1,
-    day: 2,
+    day: 1,
     totalWeeks: 6,
-    daysPracticed: 2,
+    daysPracticed: 1,
     questions: [
-      { id: 20, title: "Trapping Rain Water",            difficulty: "Hard"   as Difficulty, xp: 35, done: false },
-      { id: 21, title: "Maximum Subarray (Kadane)",      difficulty: "Medium" as Difficulty, xp: 25, done: false },
-      { id: 22, title: "Merge Intervals",                difficulty: "Medium" as Difficulty, xp: 25, done: false },
-      { id: 23, title: "Number of Islands",              difficulty: "Medium" as Difficulty, xp: 30, done: false },
-      { id: 24, title: "Coin Change",                    difficulty: "Medium" as Difficulty, xp: 30, done: false },
+      { id: 30, title: "Find Duplicate in Array",        difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 31, title: "Reverse a Linked List",          difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 32, title: "Check Balanced Parentheses",     difficulty: "Easy"   as Difficulty, xp: 15, done: false },
+      { id: 33, title: "Binary Search",                  difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+      { id: 34, title: "Bubble Sort Implementation",     difficulty: "Easy"   as Difficulty, xp: 10, done: false },
     ],
   },
 ];

@@ -46,7 +46,7 @@ export default function DashboardPage() {
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Your Target Companies</h2>
-            <Link href="/companies" className="text-sm text-blue-600 font-medium hover:underline">View All</Link>
+            <Link href="/roadmap" className="text-sm text-blue-600 font-medium hover:underline">View All</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {dashboardTargetCompanies.map((co) => {
@@ -172,14 +172,6 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                {/* Show +N more if truncated */}
-                {co.questions.length > maxQPerCompany && (
-                  <div className="px-5 py-2 border-t border-gray-50 bg-gray-50/50">
-                    <Link href={`/roadmap?company=${co.slug}`} className="text-xs text-blue-600 font-medium hover:underline">
-                      +{co.questions.length - maxQPerCompany} more tasks in roadmap
-                    </Link>
-                  </div>
-                )}
               </div>
             ));
             })()}

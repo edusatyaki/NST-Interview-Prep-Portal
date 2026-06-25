@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { TrendingUp, Flame, Trophy, Zap, AlertCircle } from "lucide-react";
+import { getUserRoadmapCompanies } from "@/lib/mock-data";
 
 const companyReadiness = [
   { co: "G", name: "Google",   color: "bg-blue-600",   role: "SDE-1", pct: 34, done: 15, total: 2274, last: "2 days ago", trend: "↑ +5%",  trendColor: "text-green-600" },
@@ -88,20 +89,20 @@ export default function ProgressPage() {
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">My Progress</h1>
 
       {/* KPI Stats — compact horizontal pills */}
-      <div className="flex flex-wrap gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { icon: TrendingUp, color: "text-blue-600",   bg: "bg-blue-50",   val: "45",    label: "Problems Solved"  },
           { icon: Flame,      color: "text-indigo-600", bg: "bg-indigo-50", val: "12",    label: "Day Streak"       },
           { icon: Trophy,     color: "text-violet-600", bg: "bg-violet-50", val: "18",    label: "Best Streak"      },
           { icon: Zap,        color: "text-cyan-600",   bg: "bg-cyan-50",   val: "2,450", label: "XP Earned"        },
         ].map(({ icon: Icon, color, bg, val, label }) => (
-          <div key={label} className={`flex items-center gap-3 px-4 py-2.5 bg-white border border-gray-200 rounded-xl`}>
-            <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center shrink-0`}>
-              <Icon className={`w-4 h-4 ${color}`} />
+          <div key={label} className={`flex items-center gap-4 px-5 py-4 bg-white border border-gray-200 rounded-xl shadow-sm`}>
+            <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center shrink-0`}>
+              <Icon className={`w-5 h-5 ${color}`} />
             </div>
             <div>
-              <div className="text-base font-bold text-gray-900 leading-tight">{val}</div>
-              <div className="text-[11px] text-gray-500">{label}</div>
+              <div className="text-xl font-bold text-gray-900 leading-tight">{val}</div>
+              <div className="text-xs text-gray-500 font-medium">{label}</div>
             </div>
           </div>
         ))}
@@ -121,7 +122,11 @@ export default function ProgressPage() {
                 Only {w.pct}% mastered. {w.companies} tests this in {w.companyPct}% of interviews.
               </p>
               <button
-                onClick={() => router.push(`/practice?topic=${encodeURIComponent(w.topic)}`)}
+                onClick={() => {
+                  const companies = getUserRoadmapCompanies();
+                  const targetSlug = companies.length > 0 ? companies[0].slug : "google";
+                  router.push(`/practice?company=${targetSlug}&topic=${encodeURIComponent(w.topic)}`);
+                }}
                 className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}
               >
                 Practice Now

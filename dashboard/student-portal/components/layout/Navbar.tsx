@@ -34,7 +34,10 @@ function getPageTitle(pathname: string): string | null {
   if (pathname === "/roadmap") return "My Roadmap";
   if (pathname === "/submit") return "Interview Experience";
   if (pathname === "/companies") return "Companies";
-  if (pathname.startsWith("/companies/") && pathname.endsWith("/practice")) {
+  if (pathname === "/progress") return "My Progress";
+  if (pathname === "/leaderboard") return "Leaderboard";
+  if (pathname === "/practice" || (pathname.startsWith("/companies/") && pathname.endsWith("/practice"))) {
+    if (pathname === "/practice") return "Practice";
     const parts = pathname.split("/");
     const co = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
     return `${co} Practice`;

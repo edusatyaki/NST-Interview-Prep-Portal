@@ -108,6 +108,7 @@ function ActiveRoadmapCard({
   onClick: () => void;
   onRemove?: (slug: string) => void;
 }) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const logoUrl = getLogoUrl(company.slug);
   const totalQ = company.weeks.reduce((s, w) => s + w.questions.length, 0);
   const doneQ  = company.weeks.reduce((s, w) => s + w.questions.filter(q => q.done).length, 0);
@@ -134,13 +135,31 @@ function ActiveRoadmapCard({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm font-bold text-gray-900 truncate">{company.name}</span>
-          <button
-            onClick={(e) => { e.stopPropagation(); onRemove?.(company.slug); }}
-            className="text-gray-300 hover:text-red-500 ml-2 shrink-0"
-            aria-label="Remove"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {isConfirmingDelete ? (
+            <div className="flex items-center gap-2 ml-2 shrink-0">
+              <span className="text-[10px] text-red-500 font-medium">Remove?</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemove?.(company.slug); }}
+                className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded hover:bg-red-100 transition-colors font-semibold"
+              >
+                Yes
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsConfirmingDelete(false); }}
+                className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded hover:bg-gray-200 transition-colors font-semibold"
+              >
+                No
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsConfirmingDelete(true); }}
+              className="text-gray-300 hover:text-red-500 ml-2 shrink-0"
+              aria-label="Remove"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
         {/* Progress bar */}
         <div className="flex items-center gap-2">
@@ -347,7 +366,7 @@ function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
           
           <div className="flex gap-2 shrink-0">
             <Link
-              href={`/companies/${company.slug}/practice`}
+              href={`/practice?company=${company.slug}`}
               className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
             >
               <Play className="w-4 h-4 fill-white" /> Practice
