@@ -34,15 +34,11 @@ export default function LandingPage() {
           </p>
           <div className="flex items-center gap-3">
             <Link
-              href="/register"
+              href="/login"
               className="bg-gray-900 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Get Started Free
+              Start Prep Now
             </Link>
-            <button className="flex items-center gap-2 border border-gray-300 text-gray-700 text-sm font-medium px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-              <PlayCircle className="w-4 h-4" />
-              View Demo
-            </button>
           </div>
         </div>
 
