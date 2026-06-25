@@ -6,6 +6,7 @@ import {
   filterQuestions,
   allTopics,
   getCompanyIntel,
+  getUserRoadmapCompanies,
   type Difficulty,
   type RoundType,
 } from "@/lib/mock-data";
@@ -34,6 +35,7 @@ export default function CompanyPracticePage({
   const { name: slug } = use(params);
   const resolvedSearchParams = use(searchParams);
   const intel = getCompanyIntel(slug);
+  const activeRoadmap = getUserRoadmapCompanies().find((r) => r.slug === slug);
 
   const [search, setSearch] = useState("");
   const [topic, setTopic] = useState(
@@ -41,18 +43,27 @@ export default function CompanyPracticePage({
   );
   const [difficulty, setDifficulty] = useState<Difficulty | "">("");
   const [roundType, setRoundType] = useState<RoundType | "">("");
+  const [weekFilter, setWeekFilter] = useState<number | "">("");
 
-  const filtered = useMemo(
-    () =>
-      filterQuestions({
-        company: slug,
-        topic: topic || undefined,
-        difficulty: difficulty || undefined,
-        roundType: roundType || undefined,
-        search: search || undefined,
-      }),
-    [slug, topic, difficulty, roundType, search]
-  );
+  const filtered = useMemo(() => {
+    let list = filterQuestions({
+      company: slug,
+      topic: topic || undefined,
+      difficulty: difficulty || undefined,
+      roundType: roundType || undefined,
+      search: search || undefined,
+    });
+
+    if (weekFilter !== "" && activeRoadmap) {
+      const selectedWeek = activeRoadmap.weeks.find((w) => w.weekNumber === Number(weekFilter));
+      if (selectedWeek) {
+        const weekQIds = new Set(selectedWeek.questions.map((q) => q.id));
+        list = list.filter((q) => weekQIds.has(q.id));
+      }
+    }
+
+    return list;
+  }, [slug, topic, difficulty, roundType, search, weekFilter, activeRoadmap]);
 
   const companyBg =
     slug === "google"    ? "bg-blue-600"   :
@@ -165,6 +176,22 @@ export default function CompanyPracticePage({
             </button>
           ))}
         </div>
+
+        {/* Week Filter (only shows if company is in roadmap) */}
+        {activeRoadmap && (
+          <select
+            value={weekFilter}
+            onChange={(e) => setWeekFilter(e.target.value === "" ? "" : Number(e.target.value))}
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
+          >
+            <option value="">All Weeks</option>
+            {activeRoadmap.weeks.map((w) => (
+              <option key={w.weekNumber} value={w.weekNumber}>
+                Week {w.weekNumber}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Question list */}

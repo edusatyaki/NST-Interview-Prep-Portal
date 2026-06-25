@@ -12,14 +12,14 @@ const companyReadiness = [
 const topics = [
   { name: "Arrays & Strings",      done: 12, total: 20, pct: 60, color: "bg-blue-500",    textColor: "text-blue-600"    },
   { name: "Binary Search",         done: 6,  total: 12, pct: 50, color: "bg-indigo-500",  textColor: "text-indigo-600"  },
-  { name: "Dynamic Programming",   done: 3,  total: 15, pct: 20, color: "bg-violet-500",  textColor: "text-violet-600"  },
+  { name: "DP",   done: 3,  total: 15, pct: 20, color: "bg-violet-500",  textColor: "text-violet-600"  },
   { name: "Trees",                 done: 5,  total: 18, pct: 28, color: "bg-cyan-500",    textColor: "text-cyan-600"    },
   { name: "Graphs",                done: 2,  total: 16, pct: 13, color: "bg-sky-500",     textColor: "text-sky-600"     },
   { name: "System Design",         done: 1,  total: 10, pct: 10, color: "bg-fuchsia-500", textColor: "text-fuchsia-600" },
 ];
 
 const weakAreas = [
-  { topic: "Dynamic Programming", pct: 10, companies: "Google",   companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
+  { topic: "DP", pct: 10, companies: "Google",   companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
   { topic: "Graphs",              pct: 13, companies: "Amazon",   companyPct: 70, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
   { topic: "System Design",       pct: 10, companies: "Flipkart", companyPct: 65, color: "text-cyan-600",   bgColor: "bg-cyan-50 border-cyan-200"     },
 ];
