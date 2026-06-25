@@ -101,7 +101,7 @@ export default function LoginPage() {
           {/* Guest Access */}
           <button
             type="button"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/onboarding/step1")}
             className="w-full flex items-center justify-center gap-3 bg-gray-100 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm hover:bg-gray-200 transition-colors"
           >
             <UserCheck className="w-4 h-4 text-gray-500" />
