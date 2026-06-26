@@ -42,7 +42,7 @@ export default function Step4() {
   return (
     <div className="h-screen overflow-hidden flex">
       {/* Left brand panel */}
-      <div className="hidden md:flex w-[320px] shrink-0 bg-gradient-to-br from-emerald-600 to-blue-700 flex-col justify-between px-10 py-12">
+      <div className="hidden md:flex w-[320px] shrink-0 bg-gradient-to-br from-blue-700 to-indigo-800 flex-col justify-between px-10 py-12">
         <div>
           <div className="flex items-center gap-2 mb-12">
             <div className="bg-white/20 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
@@ -51,11 +51,11 @@ export default function Step4() {
           <h2 className="text-white text-3xl font-extrabold leading-tight mb-3">
             Ready to<br />launch
           </h2>
-          <p className="text-emerald-100 text-sm leading-relaxed">
+          <p className="text-blue-100 text-sm leading-relaxed">
             Your roadmap is built. Every question, every topic, every week is now calibrated for your goals.
           </p>
         </div>
-        <div className="text-emerald-200 text-xs">NST Placement Prep Portal · Student Edition</div>
+        <div className="text-blue-200 text-xs">NST Placement Prep Portal · Student Edition</div>
       </div>
 
       {/* Right content */}
