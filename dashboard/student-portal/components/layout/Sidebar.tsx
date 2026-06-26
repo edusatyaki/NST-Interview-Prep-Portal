@@ -6,6 +6,8 @@ import {
  MessageCircle, CalendarDays, Map, Dumbbell,
 } from "lucide-react";
 
+import { useNavbar } from "@/lib/navbar-context";
+
 const navItems = [
  { icon: House,     label: "Home",               href: "/dashboard" },
  { icon: Building2, label: "Companies",          href: "/companies" },
@@ -13,7 +15,7 @@ const navItems = [
  { icon: Dumbbell,  label: "Practice",           href: "/practice" },
  { icon: TrendingUp,label: "My Progress",        href: "/progress" },
  { icon: Trophy,    label: "Leaderboard",        href: "/leaderboard" },
- { icon: Send,      label: "Interview Experience", href: "/submit" },
+ { icon: Send,      label: "Experience",         href: "/submit" },
 ];
 
 const connectItems = [
@@ -23,13 +25,25 @@ const connectItems = [
 
 export default function Sidebar() {
  const pathname = usePathname();
+ const { isMobileMenuOpen, setMobileMenuOpen } = useNavbar();
 
  const isActive = (href: string) =>
   pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
  return (
-  <aside className="fixed left-0 top-14 bottom-0 w-[216px] bg-white border-r border-gray-200 flex flex-col z-40">
-   <nav className="flex-1 px-3 py-4 overflow-y-auto">
+  <>
+   {/* Mobile overlay */}
+   {isMobileMenuOpen && (
+    <div 
+     className="fixed inset-0 bg-black/20 z-30 lg:hidden"
+     onClick={() => setMobileMenuOpen(false)}
+    />
+   )}
+   
+   <aside className={`fixed left-0 top-14 bottom-0 w-[216px] bg-white border-r border-gray-200 flex flex-col z-40 transition-transform duration-200 ${
+    isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+   }`}>
+    <nav className="flex-1 px-3 py-4 overflow-y-auto">
     {/* Main Nav */}
     <div className="space-y-0.5">
      {navItems.map(({ icon: Icon, label, href }) => (
@@ -71,6 +85,7 @@ export default function Sidebar() {
      </div>
     </div>
    </nav>
- </aside>
+  </aside>
+  </>
  );
 }

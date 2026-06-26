@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   CheckCircle, Lock, ChevronDown, ChevronUp,
   ExternalLink, Zap, Play, ChevronRight, BarChart2, ClipboardList,
-  Trash2, Timer, Trophy, XCircle
+  Trash2, Timer, Trophy, XCircle, Info
 } from "lucide-react";
 import { Suspense } from "react";
 import {
@@ -264,13 +264,13 @@ function RoadmapContent() {
       </header>
 
       {companies.length >= 5 && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
-          <div className="bg-red-100 text-red-600 rounded-full p-1 mt-0.5 shrink-0">
-            <XCircle className="w-5 h-5" />
+        <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+          <div className="bg-green-100 text-green-600 rounded-full p-1 mt-0.5 shrink-0">
+            <Info className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-red-800 font-bold text-sm">Roadmap Limit Reached</h3>
-            <p className="text-red-600 text-xs mt-1 font-medium">Adding more than 5 roadmaps will be messy. Focus on your current targets to maximize your chances of success!</p>
+            <h3 className="text-green-800 font-bold text-sm">Roadmap Limit Reached</h3>
+            <p className="text-green-700 text-xs mt-1 font-medium">We recommend focusing on up to 5 companies at a time for optimal preparation. Finish a roadmap to add more.</p>
           </div>
         </div>
       )}
@@ -456,17 +456,17 @@ function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
                 <div className="border-t border-gray-100 bg-gray-50/30 p-5">
                   <div className="space-y-3">
                     {week.questions.map((q) => (
-                      <div key={q.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-blue-300 transition-colors cursor-pointer group">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${q.done ? 'bg-green-500 border-green-500' : 'border-gray-300 bg-white'}`}>
+                      <div key={q.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-blue-300 transition-colors cursor-pointer group gap-2 sm:gap-4">
+                        <div className="flex items-start sm:items-center gap-3 min-w-0">
+                          <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 ${q.done ? 'bg-green-500 border-green-500' : 'border-gray-300 bg-white'}`}>
                             {q.done && <CheckCircle className="w-3.5 h-3.5 text-white" />}
                           </div>
-                          <span className={`font-semibold text-sm ${q.done ? 'text-gray-400 line-through' : 'text-gray-700 group-hover:text-blue-600'}`}>
+                          <span className={`font-semibold text-sm truncate ${q.done ? 'text-gray-400 line-through' : 'text-gray-700 group-hover:text-blue-600'}`}>
                             {q.title}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 shrink-0 ml-8 sm:ml-0">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                             q.diff === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
                             q.diff === 'Medium' ? 'bg-blue-50 text-blue-700 border-blue-200' :

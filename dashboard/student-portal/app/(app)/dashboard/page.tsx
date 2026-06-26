@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Flame, CheckSquare, Square, ExternalLink,
-  Clock, Zap, TrendingUp, ChevronRight,
+  Activity, Trophy, CheckSquare, Square, ExternalLink,
+  Clock, TrendingUp, ChevronRight, Zap
 } from "lucide-react";
 
 import {
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const prepScore = calcPrepScore(userPrepStats);
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col lg:flex-row gap-6">
       {/* ── Main Content ── */}
       <div className="flex-1 min-w-0">
         {/* Activity bar */}
@@ -92,7 +92,7 @@ export default function DashboardPage() {
               You haven&apos;t added any company roadmaps yet. Go to <Link href="/companies" className="text-blue-600 font-medium hover:underline">Companies</Link> to add one.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
               {targetCompanies.map((co) => {
                 return (
                   <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow flex flex-col">
@@ -305,14 +305,14 @@ export default function DashboardPage() {
 
         {/* Streak */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+          <Activity className="w-6 h-6 text-blue-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{userPrepStats.dayStreak}</div>
           <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Day Streak</div>
         </div>
 
         {/* XP Badge */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-          <Zap className="w-6 h-6 text-amber-500 mx-auto mb-2 fill-amber-400" />
+          <Trophy className="w-6 h-6 text-blue-600 mx-auto mb-2" />
           <div className="text-2xl font-bold text-gray-900">{userPrepStats.xpEarned.toLocaleString()}</div>
           <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">XP Earned</div>
         </div>
