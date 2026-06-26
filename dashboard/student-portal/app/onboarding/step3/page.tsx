@@ -36,7 +36,7 @@ export default function SelfRatingPage() {
   const [time, setTime] = useState("12 weeks");
 
   return (
-    <div className="h-screen overflow-hidden flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left brand panel */}
       <div className="hidden md:flex w-[320px] shrink-0 bg-gradient-to-br from-blue-700 to-indigo-800 flex-col justify-between px-10 py-12">
         <div>
@@ -55,7 +55,7 @@ export default function SelfRatingPage() {
       </div>
 
       {/* Right form panel — fixed height, no scroll */}
-      <div className="flex-1 flex flex-col px-8 py-8 bg-gray-50 overflow-hidden">
+      <div className="flex-1 flex flex-col px-6 md:px-8 py-8 bg-gray-50 overflow-y-auto">
         <div className="w-full max-w-xl mx-auto flex flex-col h-full">
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-2 mb-4">
