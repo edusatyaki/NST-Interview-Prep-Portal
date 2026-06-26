@@ -410,36 +410,34 @@ export default function SessionsPage() {
 
         {/* Right: Info Card */}
         <div>
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-4 text-white shadow-md relative overflow-hidden">
             {/* Background decorations */}
-            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-blue-400/20 blur-xl"></div>
+            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
             
             <div className="relative z-10">
-              <div className="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm border border-white/10">
-                <User className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-3 mb-3">
+                <div className="bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/10 shrink-0">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm">Need Expert Help?</h3>
+                  <p className="text-blue-100 text-[10px]">Book a 1:1 mentor session</p>
+                </div>
               </div>
-              <h3 className="font-bold text-lg mb-1">Need Expert Help?</h3>
-              <p className="text-blue-100 text-xs mb-5 leading-relaxed">
-                Book a 1:1 session with your mentor for personalized guidance and interview prep.
-              </p>
               
-              <ul className="space-y-3 mb-6">
-                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
-                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> Resume Review & Polish
+              <ul className="space-y-1.5 mb-4">
+                <li className="flex items-center gap-2 text-[11px] font-medium text-white/90">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-200 shrink-0" /> Resume Review & Polish
                 </li>
-                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
-                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> Mock Interviews (DSA/HR)
+                <li className="flex items-center gap-2 text-[11px] font-medium text-white/90">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-200 shrink-0" /> Mock Interviews (DSA/HR)
                 </li>
-                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
-                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> System Design & LLD
-                </li>
-                <li className="flex items-start gap-2.5 text-xs font-semibold text-white/90">
-                  <CheckCircle2 className="w-4 h-4 text-blue-200 shrink-0" /> General Career Guidance
+                <li className="flex items-center gap-2 text-[11px] font-medium text-white/90">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-200 shrink-0" /> System Design & LLD
                 </li>
               </ul>
               
-              <div className="bg-white/10 rounded-xl p-3.5 backdrop-blur-sm border border-white/10 text-[10px] leading-relaxed text-blue-50">
+              <div className="bg-white/10 rounded-lg p-2.5 backdrop-blur-sm border border-white/10 text-[9px] leading-tight text-blue-50">
                 Sessions are subject to faculty availability. Please book at least 24 hours in advance.
               </div>
             </div>

@@ -449,6 +449,14 @@ export default function DoubtsPage() {
         </div>
       </aside>
 
+      {/* Mobile Floating Action Button */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-blue-600 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors z-40"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
+
       {showForm && <NewDoubtDrawer onClose={() => setShowForm(false)} onSubmit={handleSubmit} />}
     </div>
   );
