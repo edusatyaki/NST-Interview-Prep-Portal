@@ -206,39 +206,42 @@ export default function ProgressPage() {
       <section className="mb-8">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Activity — Past Year</h2>
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          {/* Month labels */}
-          <div className="flex mb-1 pl-8 overflow-hidden">
-            {monthPositions.map(({ label, weekIdx }) => (
-              <div
-                key={label + weekIdx}
-                className="text-[10px] text-gray-400 absolute"
-                style={{ left: `calc(2rem + ${weekIdx * (12 + 2)}px)` }}
-              >
-                {label}
-              </div>
-            ))}
-            <div className="h-3" />
-          </div>
-
-          <div className="flex gap-0.5 mt-4">
-            {/* Day labels */}
-            <div className="flex flex-col gap-0.5 mr-1">
-              {DAY_LABELS.map((d, i) => (
-                <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
-              ))}
-            </div>
-            {/* Weeks */}
-            {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col gap-0.5">
-                {week.map((cell, di) => (
+          <div className="overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0">
+            <div className="min-w-[700px] relative">
+              {/* Month labels */}
+              <div className="flex mb-1 pl-8 relative h-4">
+                {monthPositions.map(({ label, weekIdx }) => (
                   <div
-                    key={di}
-                    title={`${cell.date.toDateString()} — ${cell.level === 0 ? "No activity" : cell.level === 1 ? "Light" : cell.level === 2 ? "Moderate" : "Active"}`}
-                    className={`w-3 h-3 rounded-sm cursor-default ${getHeatColor(cell.level)}`}
-                  />
+                    key={label + weekIdx}
+                    className="text-[10px] text-gray-400 absolute top-0"
+                    style={{ left: `calc(2rem + ${weekIdx * (12 + 2)}px)` }}
+                  >
+                    {label}
+                  </div>
                 ))}
               </div>
-            ))}
+
+              <div className="flex gap-0.5 mt-2">
+                {/* Day labels */}
+                <div className="flex flex-col gap-0.5 mr-1">
+                  {DAY_LABELS.map((d, i) => (
+                    <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
+                  ))}
+                </div>
+                {/* Weeks */}
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-0.5">
+                    {week.map((cell, di) => (
+                      <div
+                        key={di}
+                        title={`${cell.date.toDateString()} — ${cell.level === 0 ? "No activity" : cell.level === 1 ? "Light" : cell.level === 2 ? "Moderate" : "Active"}`}
+                        className={`w-3 h-3 rounded-sm cursor-default ${getHeatColor(cell.level)}`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5 mt-3 text-[11px] text-gray-400">
