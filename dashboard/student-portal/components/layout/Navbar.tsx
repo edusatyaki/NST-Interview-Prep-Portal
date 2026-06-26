@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Zap, Search, X, Building2, Tag } from "lucide-react";
+import { Bell, Zap, Search, X, Building2, Tag, Menu } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { searchAll, type SearchResult } from "@/lib/mock-data";
 import { useNavbar } from "@/lib/navbar-context";
@@ -28,7 +28,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useUser();
-  useNavbar(); // kept for context availability
+  const { isMobileMenuOpen, setMobileMenuOpen } = useNavbar();
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,11 +86,20 @@ export default function Navbar() {
     setSelectedIdx(-1);
   };
   return (
-    <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center px-4 z-50">
+    <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center px-4 z-50 gap-2 lg:gap-0">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+        className="p-1.5 -ml-1.5 text-gray-600 hover:bg-gray-100 rounded-md lg:hidden"
+        aria-label="Toggle Sidebar"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+      
       {/* Logo */}
-      <div className="flex items-center gap-2 w-[216px] shrink-0">
+      <div className="flex items-center gap-2 lg:w-[216px] shrink-0">
         <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
-        <span className="font-bold text-gray-900 text-sm">PlacePrep</span>
+        <span className="font-bold text-gray-900 text-sm hidden sm:inline-block">PlacePrep</span>
       </div>
 
       {/* Search — global command palette (only on dashboard) */}

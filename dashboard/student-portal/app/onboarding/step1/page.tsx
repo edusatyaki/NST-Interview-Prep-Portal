@@ -22,7 +22,7 @@ export default function Step1() {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left brand panel */}
       <div className="hidden md:flex w-[320px] shrink-0 bg-gradient-to-br from-blue-700 to-indigo-800 flex-col justify-between px-10 py-12">
         <div>
@@ -43,7 +43,7 @@ export default function Step1() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex flex-col justify-center items-center px-8 py-8 bg-gray-50 overflow-hidden">
+      <div className="flex-1 flex flex-col justify-center items-center px-6 md:px-8 py-8 bg-gray-50 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-2 mb-6">
@@ -56,7 +56,7 @@ export default function Step1() {
           <h1 className="text-xl font-bold text-gray-900 mb-1">What are you preparing for?</h1>
           <p className="text-sm text-gray-500 mb-5">Select all domains you want to cover</p>
 
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
             {domains.map(({ icon: Icon, label }) => {
               const isSelected = selected.includes(label);
               return (

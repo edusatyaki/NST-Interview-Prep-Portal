@@ -363,7 +363,7 @@ export default function DoubtsPage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           {[
             { label: "Total Doubts",   value: counts.all,      color: "text-gray-900" },
             { label: "Awaiting Reply", value: counts.pending,  color: "text-blue-600" },
@@ -448,6 +448,14 @@ export default function DoubtsPage() {
           </div>
         </div>
       </aside>
+
+      {/* Mobile Floating Action Button */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-blue-600 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors z-40"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
 
       {showForm && <NewDoubtDrawer onClose={() => setShowForm(false)} onSubmit={handleSubmit} />}
     </div>

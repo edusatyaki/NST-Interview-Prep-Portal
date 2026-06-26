@@ -592,33 +592,37 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
      </div>
     </div>
 
-    {/* Month labels */}
-    <div className="flex mb-1 pl-7">
-     {MONTH_LABELS.map((m, i) => (
-      <div key={m} className="text-[10px] text-gray-400" style={{ width: `${(1/12) * 100}%` }}>{m}</div>
-     ))}
-    </div>
+    <div className="overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0">
+      <div className="min-w-[650px]">
+        {/* Month labels */}
+        <div className="flex mb-1 pl-7">
+         {MONTH_LABELS.map((m, i) => (
+          <div key={m} className="text-[10px] text-gray-400" style={{ width: `${(1/12) * 100}%` }}>{m}</div>
+         ))}
+        </div>
 
-    <div className="flex gap-0.5">
-     {/* Day-of-week labels */}
-     <div className="flex flex-col gap-0.5 mr-1">
-      {DAY_LABELS.map((d, i) => (
-       <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
-      ))}
-     </div>
+        <div className="flex gap-0.5">
+         {/* Day-of-week labels */}
+         <div className="flex flex-col gap-0.5 mr-1">
+          {DAY_LABELS.map((d, i) => (
+           <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
+          ))}
+         </div>
 
-     {/* Weeks grid */}
-     {weeks.map((week, wi) => (
-      <div key={wi} className="flex flex-col gap-0.5">
-       {week.map((val, di) => (
-        <div
-         key={di}
-         title={`${val === 0 ? "No" : val} problem${val !== 1 ? "s" : ""} solved`}
-         className={`w-3 h-3 rounded-sm cursor-default ${getHeatmapColor(val)}`}
-        />
-       ))}
+         {/* Weeks grid */}
+         {weeks.map((week, wi) => (
+          <div key={wi} className="flex flex-col gap-0.5">
+           {week.map((val, di) => (
+            <div
+             key={di}
+             title={`${val === 0 ? "No" : val} problem${val !== 1 ? "s" : ""} solved`}
+             className={`w-3 h-3 rounded-sm cursor-default ${getHeatmapColor(val)}`}
+            />
+           ))}
+          </div>
+         ))}
+        </div>
       </div>
-     ))}
     </div>
 
     <p className="text-xs text-gray-400 mt-3">
