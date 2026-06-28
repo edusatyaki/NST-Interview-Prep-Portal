@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, Upload, Download, AlertTriangle, Scale, CheckCircle, X } from "lucide-react";
 import { mockCurriculumCoverage, computeOverall } from "@/lib/data/curriculumCoverage";
 
@@ -12,6 +12,12 @@ function getColorClass(val: number) {
 
 export default function CurriculumPage() {
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="max-w-6xl pb-20">
@@ -74,6 +80,17 @@ export default function CurriculumPage() {
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="h-10 bg-gray-100 animate-pulse rounded w-1/3"></div>
+          <div className="h-64 bg-gray-100 animate-pulse rounded-xl"></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-40 bg-gray-100 animate-pulse rounded-xl"></div>
+            <div className="h-40 bg-gray-100 animate-pulse rounded-xl"></div>
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Heatmap Table */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6 flex flex-col">
         <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
@@ -280,6 +297,8 @@ export default function CurriculumPage() {
             </button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

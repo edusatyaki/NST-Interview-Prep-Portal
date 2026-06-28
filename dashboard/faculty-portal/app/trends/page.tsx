@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Radar, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { mockTrendAlerts } from "@/lib/data/trendAlerts";
@@ -17,6 +17,13 @@ const chartData = [
 export default function TrendsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const filters = ["All", "FAANG", "Indian Product", "Indian Service", "Startups"];
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
+
 
   const getAlertDot = (severity: string) => {
     switch (severity) {
@@ -35,6 +42,14 @@ export default function TrendsPage() {
         <p className="text-sm text-gray-500">Track how interview patterns are shifting across companies and topics over time.</p>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-6">
+          <div className="h-64 bg-gray-100 animate-pulse rounded-xl"></div>
+          <div className="h-8 bg-gray-100 animate-pulse rounded-lg w-3/4"></div>
+          {[1,2,3,4].map(i => <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-xl"></div>)}
+        </div>
+      ) : (
+        <>
       {/* Chart Section */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mb-8">
         <h2 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -119,6 +134,8 @@ export default function TrendsPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

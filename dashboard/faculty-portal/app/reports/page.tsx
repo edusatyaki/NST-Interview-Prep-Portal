@@ -2,7 +2,7 @@
 
 import { FileText, Download, Play, CheckCircle2, History } from "lucide-react";
 import { mockReportHistory } from "@/lib/data/reports";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ReportsPage() {
   const [sections, setSections] = useState({
@@ -11,6 +11,12 @@ export default function ReportsPage() {
     companyRankings: true,
     subjectBreakdown: false
   });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleGenerate = () => {
     alert("Report generation coming soon");
@@ -28,7 +34,13 @@ export default function ReportsPage() {
         <p className="text-sm text-gray-500">Generate and download curriculum intelligence reports for academic review.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 h-96 bg-gray-100 animate-pulse rounded-xl"></div>
+          <div className="lg:col-span-1 h-96 bg-gray-100 animate-pulse rounded-xl"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Generate Report */}
         <div className="lg:col-span-2 flex flex-col">
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden h-full">
@@ -142,13 +154,14 @@ export default function ReportsPage() {
                     >
                       <Download className="w-3.5 h-3.5" /> Download PDF
                     </button>
-                  </div>
+                </div>
                 ))}
               </div>
             </div>
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

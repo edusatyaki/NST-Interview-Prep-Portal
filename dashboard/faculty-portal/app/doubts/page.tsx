@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MessageCircle, ChevronDown, ChevronUp,
   Clock, CheckCircle2, AlertCircle, Send, Tag, X,
 } from "lucide-react";
-import { FacultyDoubt, DoubtStatus, DoubtTag, mockFacultyDoubts } from "@/lib/data/doubts";
+import { mockFacultyDoubts } from "@/lib/data/doubts";
+import { FacultyDoubt, DoubtStatus, DoubtTag, DoubtReply } from "@/lib/data/types";
 
 // ── Status config — blue/white only ──────────────────
 const STATUS_MAP: Record<DoubtStatus, { label: string; dot: string; badge: string }> = {
@@ -170,6 +171,12 @@ function DoubtCard({ doubt, onReply, onResolve }: { doubt: FacultyDoubt; onReply
 export default function DoubtsPage() {
   const [doubts, setDoubts] = useState<FacultyDoubt[]>(mockFacultyDoubts);
   const [filter, setFilter] = useState<"All" | DoubtStatus>("All");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleReply = (id: string, text: string) => {
     setDoubts(prev => prev.map(d => {
@@ -214,6 +221,15 @@ export default function DoubtsPage() {
         <p className="text-sm text-gray-500 mt-1">Answer student questions across all topics</p>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1,2,3].map(i => <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-lg"></div>)}
+          </div>
+          {[1,2,3,4,5].map(i => <div key={i} className="h-24 bg-gray-100 animate-pulse rounded-xl"></div>)}
+        </div>
+      ) : (
+        <>
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
@@ -271,6 +287,8 @@ export default function DoubtsPage() {
           ))
         )}
       </div>
+      </>
+      )}
     </div>
   );
 }

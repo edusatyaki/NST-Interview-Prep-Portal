@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   ChevronDown, RefreshCw, 
@@ -13,6 +14,13 @@ import { mockCurriculumCoverage } from "@/lib/data/curriculumCoverage";
 import { mockTrendAlerts } from "@/lib/data/trendAlerts";
 
 export default function DashboardPage() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
+
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
       case "Critical":
@@ -69,6 +77,20 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-32 bg-gray-100 animate-pulse rounded-xl"></div>
+            <div className="h-32 bg-gray-100 animate-pulse rounded-xl"></div>
+            <div className="h-32 bg-gray-100 animate-pulse rounded-xl"></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-gray-100 animate-pulse rounded-xl"></div>
+            <div className="lg:col-span-1 h-96 bg-gray-100 animate-pulse rounded-xl"></div>
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Top Row: 3 KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Subjects Analyzed */}
@@ -300,6 +322,8 @@ export default function DashboardPage() {
         </div>
 
       </div>
+      </>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CalendarDays,
   Clock,
@@ -9,7 +9,8 @@ import {
   AlertCircle,
   Video,
 } from "lucide-react";
-import { FacultySessionRequest, mockFacultySessionRequests, SessionStatus } from "@/lib/data/sessionRequests";
+import { mockFacultySessionRequests } from "@/lib/data/sessionRequests";
+import { FacultySessionRequest, SessionStatus } from "@/lib/data/types";
 
 const TIME_SLOTS = ["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
 
@@ -36,6 +37,12 @@ export default function RequestsPage() {
   const [proposingFor, setProposingFor] = useState<string | null>(null);
   const [proposedDate, setProposedDate] = useState("");
   const [proposedTime, setProposedTime] = useState(TIME_SLOTS[0]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   const filteredRequests = requests.filter(
     (r) => activeTab === "All" || r.status === activeTab
@@ -94,6 +101,15 @@ export default function RequestsPage() {
         </p>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1,2,3].map(i => <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-lg"></div>)}
+          </div>
+          {[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-100 animate-pulse rounded-xl"></div>)}
+        </div>
+      ) : (
+        <>
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white border border-gray-200 rounded px-3 py-2.5 shadow-sm">
@@ -310,6 +326,8 @@ export default function RequestsPage() {
           })
         )}
       </div>
+      </>
+      )}
     </div>
   );
 }

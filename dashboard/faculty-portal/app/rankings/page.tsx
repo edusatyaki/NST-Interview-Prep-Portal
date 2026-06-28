@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2, ArrowDownAZ, ArrowUpNarrowWide, ArrowDownWideNarrow, Search } from "lucide-react";
-import { mockCompaniesRankings, CompanyRanking } from "@/lib/data/companies";
+import { mockCompaniesRankings } from "@/lib/data/companies";
+import { CompanyRanking } from "@/lib/data/types";
 
 type SortOption = "name_asc" | "name_desc" | "score_asc" | "score_desc";
 
 export default function RankingsPage() {
   const [sortOption, setSortOption] = useState<SortOption>("score_desc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   const sortedCompanies = [...mockCompaniesRankings]
     .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -46,6 +53,13 @@ export default function RankingsPage() {
         <p className="text-sm text-gray-500">See which companies test which subjects most heavily, ranked by curriculum relevance impact.</p>
       </div>
 
+      {isLoading ? (
+        <div className="space-y-3">
+          <div className="h-12 bg-gray-100 animate-pulse rounded-xl"></div>
+          {[1,2,3,4,5,6].map(i => <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-lg"></div>)}
+        </div>
+      ) : (
+        <>
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
         {/* Toolbar */}
         <div className="p-5 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -136,6 +150,8 @@ export default function RankingsPage() {
           </table>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }
