@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Faculty Portal
 
-## Getting Started
+This is the Faculty Portal for PlacePrep, designed to track industry trends, curriculum gaps, and student session requests.
 
-First, run the development server:
+## Pages
+- `/` - **Dashboard Home**: KPI overview, gap matrix preview, and live insights feed.
+- `/requests` - **Session Requests**: View, confirm, or propose new times for student mock interviews.
+- `/doubts` - **Doubts & Questions**: Answer student doubts organized by topic tags.
+- `/curriculum` - **Curriculum Gap Matrix**: Heatmap visualization of syllabus coverage against industry demand.
+- `/trends` - **Industry Trends**: Charting topic frequency and a feed of recent hiring trends.
+- `/rankings` - **Company Rankings**: Sortable table of companies ranked by curriculum alignment.
+- `/reports` - **Export Reports**: Generate and download PDF exports of the dashboard analytics.
 
+## Data Layer (Mock)
+All data is stored in `lib/data/`:
+- `types.ts` - Shared TypeScript interfaces used across all data files.
+- `curriculumCoverage.ts` - Data for the gap matrix heatmap and summary cards.
+- `trendAlerts.ts` - Data for the insights feed on the dashboard and trends pages.
+- `sessionRequests.ts` - Student session requests (pending, confirmed, etc.).
+- `doubts.ts` - Threaded student questions and faculty replies.
+- `companies.ts` - Company ranking data adapted from the main student portal.
+- `reports.ts` - History of previously generated reports.
+
+## Running Locally
+The portal runs on port `3001` (if run concurrently with the student portal which uses `3000`).
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Implementation Notes
+- The **Dashboard Home** (`/`) and **Curriculum Gap Matrix** (`/curriculum`) were built against specific visual mockups provided by Stitch:
+  - `dashboard/student-portal/stitch_placeprep_nst_interview_intelligence_portal/faculty_dashboard_placeprep/`
+  - `dashboard/student-portal/stitch_placeprep_nst_interview_intelligence_portal/curriculum_gap_matrix_placeprep/`
+- The **Session Requests** (`/requests`) and **Doubts & Questions** (`/doubts`) mirror the exact data models and UI styling patterns of the Student Portal equivalents (`dashboard/student-portal/app/(app)/sessions/page.tsx` and `doubts/page.tsx`).
