@@ -40,6 +40,12 @@ export const mockCurriculumCoverage: SubjectCoverage[] = [
     courseCode: "CS301",
     coverage: { faang: 65, indianProduct: 80, indianService: 90, startups: 50 },
     industryDemand: "Medium"
+  },
+  {
+    subjectName: "Cloud Computing",
+    courseCode: "CS305",
+    coverage: { faang: 50, indianProduct: 55, indianService: 60, startups: 45 },
+    industryDemand: "High"
   }
 ];
 

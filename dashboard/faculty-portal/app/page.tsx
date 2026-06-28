@@ -1,234 +1,304 @@
+"use client";
+
 import Link from "next/link";
-import {
+import { 
+  ChevronDown, RefreshCw, 
+  FileText, ArrowUp, 
+  AlertTriangle, 
+  Clock, CheckCircle2, 
   ArrowRight,
-  BarChart2,
-  CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  Inbox,
-  MessageCircle,
+  Server, Cloud, Database, Radar
 } from "lucide-react";
-import { mockFacultySessionRequests } from "@/lib/data/sessionRequests";
-import { CATEGORIES, DEFAULT_MATRIX, TOPICS } from "@/lib/data/relevanceMatrix";
-import { cn } from "@/lib/utils";
-
-const TODAY = new Date(2026, 5, 26);
-
-function getWeekBounds(date: Date): { start: Date; end: Date } {
-  const d = new Date(date);
-  const day = d.getDay();
-  const start = new Date(d);
-  start.setDate(d.getDate() - day);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
-}
-
-const pendingRequests = mockFacultySessionRequests.filter((r) => r.status === "pending");
-const confirmedSessions = mockFacultySessionRequests.filter((r) => r.status === "confirmed");
-
-const { start: weekStart, end: weekEnd } = getWeekBounds(TODAY);
-const sessionsThisWeek = confirmedSessions.filter((s) => {
-  const d = new Date(`${s.date}T00:00:00`);
-  return d >= weekStart && d <= weekEnd;
-});
-
-const totalCells = TOPICS.length * CATEGORIES.length;
-const tickedCells = TOPICS.reduce(
-  (acc, topic) => acc + CATEGORIES.filter((cat) => DEFAULT_MATRIX[topic.id]?.[cat.id]).length,
-  0
-);
-const coveragePct = Math.round((tickedCells / totalCells) * 100);
-
-const quickLinks = [
-  {
-    href: "/requests",
-    icon: CalendarDays,
-    label: "Session Requests",
-    description: "Review pending student session bookings",
-    badge: pendingRequests.length > 0 ? `${pendingRequests.length} pending` : null,
-    accentColor: "bg-blue-50 text-blue-600",
-  },
-  {
-    href: "/doubts",
-    icon: MessageCircle,
-    label: "Doubts & Questions",
-    description: "Answer tagged student doubts across interview topics",
-    badge: null,
-    accentColor: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    href: "/curriculum",
-    icon: BarChart2,
-    label: "Curriculum Gap Matrix",
-    description: "Check syllabus coverage against interview categories",
-    badge: null,
-    accentColor: "bg-amber-50 text-amber-600",
-  },
-];
-
-function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <span className={cn("rounded px-2 py-0.5 text-xs font-medium", className)}>
-      {children}
-    </span>
-  );
-}
+import { mockCurriculumCoverage } from "@/lib/data/curriculumCoverage";
+import { mockTrendAlerts } from "@/lib/data/trendAlerts";
 
 export default function DashboardPage() {
+  const getSeverityBadge = (severity: string) => {
+    switch (severity) {
+      case "Critical":
+        return <span className="inline-flex items-center px-2 py-1 rounded bg-red-100 text-red-700 font-semibold text-[11px] uppercase tracking-wide">Critical</span>;
+      case "Moderate":
+        return <span className="inline-flex items-center px-2 py-1 rounded bg-amber-100 text-amber-800 font-semibold text-[11px] uppercase tracking-wide">Moderate</span>;
+      case "Aligned":
+        return <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-100 text-emerald-700 font-semibold text-[11px] uppercase tracking-wide">Aligned</span>;
+      default:
+        return null;
+    }
+  };
+
+  const getAlertDot = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "border-red-500";
+      case "medium":
+        return "border-amber-500";
+      case "info":
+        return "border-blue-500";
+      default:
+        return "border-gray-500";
+    }
+  };
+
+  const getCoverageData = (subjectName: string) => {
+    return mockCurriculumCoverage.find(s => s.subjectName === subjectName);
+  };
+
+  // We are asked to specifically render 3 rows:
+  // Row 1: System Design
+  // Row 2: Cloud Computing
+  // Row 3: Data Structures (maps to "Data Structures & Algo")
+  const sysDesign = getCoverageData("System Design");
+  const cloudComp = getCoverageData("Cloud Computing");
+  const dsa = getCoverageData("Data Structures & Algo");
+
   return (
-    <div className="space-y-8 pb-10">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50">
-              <Inbox className="h-6 w-6 text-blue-600" />
+    <div className="max-w-7xl mx-auto pb-20">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Curriculum Intelligence Dashboard</h1>
+          <p className="text-sm text-gray-500">Real-time alignment between academic programs and industry hiring requirements.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="bg-white border border-gray-300 text-gray-700 font-medium text-sm py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
+            Fall 2024 <ChevronDown className="w-4 h-4" />
+          </button>
+          <button className="bg-black text-white font-medium text-sm py-2 px-4 rounded-lg hover:bg-gray-900 transition-colors flex items-center gap-2 shadow-sm">
+            <RefreshCw className="w-4 h-4" /> Sync Data
+          </button>
+        </div>
+      </div>
+
+      {/* Top Row: 3 KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {/* Subjects Analyzed */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-blue-600 transition-colors">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 rounded-lg bg-gray-50 text-gray-700 flex items-center justify-center">
+              <FileText className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-3xl font-bold text-gray-900">{pendingRequests.length}</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-500">Pending Requests</p>
-            </div>
+            <span className="text-emerald-700 bg-emerald-50 text-xs px-2 py-0.5 rounded flex items-center gap-1 font-semibold border border-emerald-100">
+              <ArrowUp className="w-3 h-3" /> 2
+            </span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 mb-1 font-medium">Subjects Analyzed</p>
+            <p className="text-3xl font-bold text-gray-900">12</p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-              <CalendarDays className="h-6 w-6 text-emerald-600" />
+        {/* Critical Gaps Found */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-red-500 transition-colors">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-3xl font-bold text-gray-900">{sessionsThisWeek.length}</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-500">Sessions This Week</p>
-            </div>
+            <span className="text-red-700 bg-red-50 text-xs px-2 py-0.5 rounded flex items-center gap-1 font-semibold border border-red-100">
+              Needs Review
+            </span>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 mb-1 font-medium">Critical Gaps Found</p>
+            <p className="text-3xl font-bold text-gray-900">5</p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50">
-              <BarChart2 className="h-6 w-6 text-amber-600" />
+        {/* Last Data Sync */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2 rounded-lg bg-gray-50 text-gray-700 flex items-center justify-center">
+              <Clock className="w-5 h-5" />
             </div>
-            <div className="flex-1">
-              <p className="text-3xl font-bold text-gray-900">{coveragePct}%</p>
-              <p className="mt-0.5 text-sm font-medium text-gray-500">Curriculum Coverage</p>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    coveragePct >= 70 ? "bg-emerald-500" : coveragePct >= 40 ? "bg-amber-500" : "bg-blue-600"
-                  )}
-                  style={{ width: `${coveragePct}%` }}
-                />
-              </div>
-            </div>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500 mb-1 font-medium">Last Data Sync</p>
+            <p className="text-3xl font-bold text-gray-900">2h ago</p>
+            <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Automated sync active
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-gray-900">Upcoming Sessions</h2>
-            <Link href="/requests" className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700">
-              View Requests
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="space-y-3 p-6">
-            {confirmedSessions.slice(0, 3).map((session) => (
-              <div
-                key={session.id}
-                className="flex items-center justify-between rounded-lg border border-gray-100 p-3.5 transition-colors hover:border-gray-200 hover:bg-gray-50/50"
-              >
-                <div>
-                  <p className="mb-1 text-sm font-bold leading-none text-gray-900">{session.studentName}</p>
-                  <p className="text-xs text-gray-500">{session.topic}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-blue-600">{session.time}</p>
-                  <p className="text-xs text-gray-400">{session.date}</p>
-                </div>
-              </div>
-            ))}
-            {confirmedSessions.length === 0 && (
-              <p className="py-4 text-center text-sm italic text-gray-400">No upcoming sessions.</p>
-            )}
+      {/* Main Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Panel: Gap Matrix Preview */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
+            <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+              <h2 className="font-bold text-gray-900">Curriculum Gap Matrix Preview</h2>
+              <Link href="/curriculum" className="text-blue-600 font-medium text-sm hover:underline flex items-center gap-1">
+                View Full Matrix <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            
+            <div className="p-5 overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[500px]">
+                <thead>
+                  <tr className="border-b border-gray-200 text-xs uppercase tracking-wider font-bold text-gray-500">
+                    <th className="py-3 px-4 w-1/3">Subject Area</th>
+                    <th className="py-3 px-4">Industry Demand</th>
+                    <th className="py-3 px-4">Curriculum Coverage</th>
+                    <th className="py-3 px-4 text-right">Gap Severity</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  
+                  {/* Row 1: System Design */}
+                  <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-700">
+                          <Server className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{sysDesign?.subjectName || "System Design"}</p>
+                          <p className="text-xs text-gray-500">{sysDesign?.courseCode || "CS402"}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-gray-900 h-1.5 rounded-full" style={{ width: "95%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">High</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: "30%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">Low</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      {getSeverityBadge("Critical")}
+                    </td>
+                  </tr>
+
+                  {/* Row 2: Cloud Computing */}
+                  <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-700">
+                          <Cloud className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{cloudComp?.subjectName || "Cloud Computing"}</p>
+                          <p className="text-xs text-gray-500">{cloudComp?.courseCode || "CS305"}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-gray-900 h-1.5 rounded-full" style={{ width: "85%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">High</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: "60%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">Med</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      {getSeverityBadge("Moderate")}
+                    </td>
+                  </tr>
+
+                  {/* Row 3: Data Structures */}
+                  <tr className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-gray-700">
+                          <Database className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">Data Structures</p>
+                          <p className="text-xs text-gray-500">{dsa?.courseCode || "CS201"}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-gray-900 h-1.5 rounded-full" style={{ width: "90%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">High</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 max-w-[80px]">
+                          <div className="bg-emerald-600 h-1.5 rounded-full" style={{ width: "95%" }}></div>
+                        </div>
+                        <span className="text-gray-600 text-xs font-medium">High</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      {getSeverityBadge("Aligned")}
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-gray-900">Pending Action Needed</h2>
-            <Link href="/requests" className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700">
-              View All Requests
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="space-y-3 p-6">
-            {pendingRequests.slice(0, 3).map((req) => (
-              <div
-                key={req.id}
-                className="flex items-center gap-3 rounded-lg border border-gray-100 p-3.5 transition-colors hover:border-gray-200 hover:bg-gray-50/50"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                  {req.studentInitials}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="mb-1 truncate text-sm font-bold leading-none text-gray-900">{req.studentName}</p>
-                  <p className="truncate text-xs text-gray-500">
-                    {req.branch} · {req.year}
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <Badge className="border border-blue-200 bg-blue-50 text-[10px] font-semibold text-blue-700">
-                    {req.topic}
-                  </Badge>
-                  <p className="text-[10px] text-gray-400">{req.date}</p>
-                </div>
+        {/* Right Panel: Trend Alerts Feed */}
+        <div className="lg:col-span-1">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm h-full flex flex-col">
+            <div className="p-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+              <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                <Radar className="w-5 h-5 text-blue-600" />
+                Recent Trend Alerts
+              </h2>
+            </div>
+            
+            <div className="p-5 flex-grow overflow-y-auto">
+              <div className="space-y-6 ml-3 border-l-2 border-gray-100">
+                {mockTrendAlerts.map((alert, index) => (
+                  <div key={alert.id} className="relative pl-5">
+                    <div className={`absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-white border-[3px] ${getAlertDot(alert.severity)}`}></div>
+                    <span className="text-xs text-gray-500 font-semibold block mb-1">
+                      {alert.timeAgo} • {alert.source}
+                    </span>
+                    <p className="font-semibold text-gray-900 mb-1 leading-snug">
+                      {alert.headline}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-2 leading-relaxed">
+                      {alert.description}
+                    </p>
+                    {alert.tags && alert.tags.length > 0 && (
+                      <div className="flex gap-2 flex-wrap">
+                        {alert.tags.map(tag => (
+                          <span key={tag} className="text-[10px] bg-gray-50 px-2 py-0.5 rounded text-gray-600 font-semibold border border-gray-200 uppercase tracking-wide">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-            {pendingRequests.length === 0 && (
-              <p className="flex items-center justify-center gap-2 py-4 text-center text-sm italic text-gray-400">
-                <CheckCircle2 className="h-4 w-4 text-gray-400" />
-                All caught up. No pending requests.
-              </p>
-            )}
+            </div>
+            
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <Link href="/trends" className="block w-full text-blue-600 font-medium text-sm py-2 rounded hover:bg-gray-100 transition-colors text-center border border-transparent hover:border-gray-200">
+                View All Insights <ArrowRight className="w-4 h-4 inline-block ml-1 align-text-bottom" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">Quick Links</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {quickLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="group block">
-              <div className="h-full rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-blue-200">
-                <div className="flex items-start gap-4">
-                  <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", link.accentColor)}>
-                    <link.icon className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
-                        {link.label}
-                      </p>
-                      {link.badge && (
-                        <Badge className="border border-blue-200 bg-blue-50 text-[10px] text-blue-700">
-                          {link.badge}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs leading-relaxed text-gray-500">{link.description}</p>
-                  </div>
-                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-blue-600" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
     </div>
   );
